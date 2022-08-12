@@ -1,16 +1,342 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="tickets.css">
+    <script src="https://kit.fontawesome.com/6e66ce9a53.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://kit.fontawesome.com/6e66ce9a53.html"></head>
+    <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <title>elementExplain</title>
+    <script src="./tickets.js"></script>
+    <script type="text/javascript">
+        /*window.onload = function() {
+  var httpRequest;
+
+  document.getElementById("btn").addEbentListener('click', () => {
+    var userId = document.getElementById("userId").value;
+
+    httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechante = () => {
+       if(httpRequest.readyState === XMLHttpRequest.DONE) {
+          if(httpRequest.status == 200) {
+
+            var result = httpRequest.response;
+
+          
+          document.getElenemtById("userID").innerText = result.userId;
+
+          } else {alert('request Error!')};
+       }
+    };
+
+    httpRequest.open('GET', '/getAgeByName?userId=' +userId);
+    httpRequest.responseType = "json";
+    httpRequest.send();
+  
+  
+});
+}*/
+
+     
+
+    </script>
+<style>
+h1{
+    color:rgb(142, 138, 201);
+    text-align: center;
+    background-color: midnightblue;
+    padding:30px;
+   
+}
+
+
+
+
+
+a{
+    display: flex;
+    justify-content: center;
+    align-items:center;
+    height: 10vh;
+    flex-direction: column;
+
+    text-decoration:  none;
+    color:rgb(142, 138, 201);
+    text-align: center;
+
+
+}
+.footer{
+    background-color: midnightblue;
+    align-items: center;
+    text-align: center;
+}
+
+.footer a{
+    padding:20px;
+    display: inline-block;
+    
+
+
+}
+
+.footer a:hover{
+    color:white;
+}
+
+
+
+.waiting{
+    padding-left:10px;
+    padding-right:10px;
+    margin-left:10px;
+
+}
+
+.ticket{
+    padding-left:10px;
+    padding-right:10px;
+    margin-left:10px;
+
+    
+
+
+   
+}
+
+.img{
+    width:140px;
+    height:140px;
+    padding:20px;
+    border-radius: 50%;
+    align-items: center;
+    text-align: center;
+}
+
+#btn{
+
+    display: flex;
+    justify-content: center;
+    align-items:center;
+    height: 10vh;
+    display: flex;
+    font-size: 20pt;
+
+
+
+    border: 0.5rem solid midnightblue;
+    border-top-left-radius: 15%;
+    border-bottom-left-radius: 20%;
+    border-top-right-radius: 15%;
+    border-bottom-right-radius:20%;
+    background-color: rgb(228, 228, 238);
+    color:rgb(142, 138, 201);
+    padding:10px;
+    padding-left:30px;
+    padding-right:30px;
+    margin-left:30px;
+
+ 
+}
+
+#btn:hover{
+    color:white;
+    
+}
+
+.index{
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-left: 10px;
+
+    align-items: center;
+    text-align: center;
+
+}
+
+.gamja{
+    
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-left: 10px;
+    
+        align-items: center;
+        text-align: center;
+    
+    
+}
+
+
+
+
+
+
+</style>
+
 </head>
 
 <body>
-    <h1>개인의 대기 번호</h1>
+     <div class="flrex-container">
+     <h1 >개인의 대기 번호</h1>
+
+     <br/><br/>
+
+
+      
+          <div class="gamja">
+           <a href="https://academy.elice.io/" target="_blank" >
+            <img src="img/tornado.jpg" alt="회오리 감자" width =" 100px" height = "100px" usemap="#tornadopotato">
+            회오리 감자
+          
+ 
+    
+          <div class = "photo">
+         <map name="tornadopotato">
+          <area shape="rect" coords="100, 100, 0,  0" alt="회오리감자" href="index.html" media="screen and (min-color-index:256)">
+           </map>
+           
+
+           <div class="waiting">
+             <p>
+              
+
+                <a>
+               <h2><strong>3번째 대기중</strong> <br />
+                <br />토큰  12345</h2>
+                <div>
+
+                 
+                </div>
+                </a>
+            </p>
+            </div>
+
+            <div>
+              <input type= "submit" class="btn" value="사용완료"/>
+
+            </div>
+   
+     
+ 
+             
+    
+
+
+            <div class="footer">
+              <a href="" id = index><i class="fa-solid fa-magnifying-glass fa-2x"></i></a>
+              <a href="" id = waiting><i class="fa-solid fa-house fa-2x"></i></a>
+              <a href="" id = ticket><i class="fa-solid fa-ticket-simple fa-2x"></i></a>
+          </div>
+          </div>
+  </div>
+
+   <script>
+
+
+     window.onload = function(){
+      console.log('작동');
+      $.ajax({
+      type: "GET",
+      url: "http://localhost:3000/lists/json",
+      dataType: "json",
+      error: function () {
+        alert('통신실패!!');
+      },
+      success: function (data) {
+            console.log(data);
+    }}); 
+
+    
+
+  }
+     
+ 
+     
+
+
+       
+      /*  window.onload = function(){
+              var a = document.getElementById( btn ).innerHTML = "사용이 완료되었습니다";
+              console.log("사용이 완료되었습니다");
+              }
+
+
+  
+
+window.onload = function() {
+ 
+  console.log("실행");
+  $.ajax({
+
+type: "GET",
+url: 'http://localhost:3000/tickets/json',//"ajaxData.jsp?type=1",
+dataType: "json",
+error: function () {
+alert('연결오류');
+ },
+success: function (data) {
+alert("통신데이터 값 : " + data);
+   console.log($("#dataArea").html(data));
+  }
+});
+
+}
+
+
+function reqAjax1() {
+    $.ajax({
+      url:'reqAjax1',
+      method:'POST',
+      error: function () {
+    alert('연결오류');
+     },
+      success:function(resp) {
+        if(resp == InfoResult){
+          alert("통신데이터 값 : " + resp);
+          $('#req1').text("토큰   " + resp );
+
+        }
+    
+     }
+      }
+    )}*/
+
+  /*function reqAjax2 () 
+    var fooidId = $("foodID").val();
+    var userId = $("userID").val();
+    if(foodId.trim() =='' || userId.trim()== ''){
+      return;
+    }
+
+    var sendData = "foodID"+foodID+'&userID'+userID++;
+    $.ajax({
+      url:'reqAjax2',
+      method:'POST'
+      , data: sendData,
+      success:function(resp) {}
+    });*/
+ 
+   
+ 
+
+
+
+    
+  </script>
+
+
+
+
+
 </body>
 
+
+
 </html>
+
+

@@ -9,7 +9,7 @@ h1 {
     background-color: midnightblue;
     padding : 30px;
     height: 50px;
-    max-width: 870px;
+    max-width: 825px;
 }
 a {
     text-decoration: none;
@@ -22,7 +22,7 @@ a {
     justify-content: center;
     overflow: auto;
     height: 80px;
-    max-width: 930px;
+    max-width: 885px;
 }
 .footer a{
     padding: 20px;
@@ -61,9 +61,8 @@ a {
     margin: 5px;
     max-width: 870px;
 }
-.resto .card:not(:last-child){
-    
-}
+
+
 .resto .card:hover{
     background-color: rgb(222, 221, 243);
     transition-duration: 0.5s;

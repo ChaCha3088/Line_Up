@@ -1,182 +1,127 @@
-body{
-    font-family: 'Noto Sans KR', sans-serif;
-    display: flex;
-    justify-content: center;
-}
-#wrapper{
-    width:100%;
-    max-width:1020px;
-    height: auto;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-.show{
-    position:fixed;
-    width: 80%;
-    background-color: white;
-    border:1px solid lightgray;
-}
-#navi{
-    width:100%;
-    padding-top: 100px;
-
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    justify-content: start;
-
-    background-color: #509760;
-}
-.menu{
-    height:20px;
-    width:100px;
-    padding: 10px 0;
-    border-radius: 3px 3px 0 0;
+h1{
+    color:rgb(142, 138, 201);
     text-align: center;
-    color: white;
-    text-decoration: none;
+    background-color: midnightblue;
+    padding:30px;
+   
 }
-.menu:hover{
-    color: #509760;
-    background-color: white;
 
-}
-.searchbar{
-    padding-top: 30px;
-    width:100%;
+
+
+
+
+a{
     display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-}
-.bar{
-    border:1px solid lightgray;
-    border-radius: 10px;
-    margin-left:10px;
-}
-.vertical{
-    width:100%;
-    display: flex;
+    justify-content: center;
+    align-items:center;
+    height: 10vh;
     flex-direction: column;
-    justify-content: center;
+
+    text-decoration:  none;
+    color:rgb(142, 138, 201);
+    text-align: center;
+
+
 }
-.horizontal{
-    width:100%;
+.footer{
+    background-color: midnightblue;
+    align-items: center;
+    text-align: center;
+}
+
+.footer a{
+    padding:20px;
+    display: inline-block;
+    
+
+
+}
+
+.footer a:hover{
+    color:white;
+}
+
+
+
+.waiting{
+    padding-left:10px;
+    padding-right:10px;
+    margin-left:10px;
+
+}
+
+.ticket{
+    padding-left:10px;
+    padding-right:10px;
+    margin-left:10px;
+
+    
+
+
+   
+}
+
+.img{
+    width:140px;
+    height:140px;
+    padding:20px;
+    border-radius: 50%;
+    align-items: center;
+    text-align: center;
+}
+
+#btn{
+
     display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    flex-wrap: wrap;
-}
-.horizontal p{
-    width:50%;
-}
-.product{
-    position: relative;
-    width:24%;
-    height:320px;
-    background-color: black;
-    background-size:cover;
-    color:white;
-    font-size: 1em;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-.productEx{
-    width: 100%;
-    height: 200px;
-    position: absolute;
-    bottom: 0;
-    overflow: hidden;
-    color:white;
-    font-weight: normal;
-    font-size: 1em;
-
-}
-.product:hover{
-    cursor: pointer;
-}
-.horizontal div img{
-    width:100%;
-}
-.link{
-    color:gray;
-    font-size:0.8em;
-}
-.link:hover{
-    text-decoration: underline;
-}
-h3{
-    margin:30px 0 10px 0;
-}
-.button{
-    background-color: #509760;
-    color:white;
-    border: none;
-    margin:10px;
-    padding:10px;
-    width:40%;
-    height:50px;
-}
-.button:active{
-    opacity: 0.8;
-}
-.button_space{
-    display:flex;
     justify-content: center;
-}
-.exDivide{
-    width:40%;
-}
-.exDivide2{
-    width:50%;
-}
-#title{
-    font-size:1.5em;
-    font-weight: bold;
-}
-#category{
-    font-weight: bold;
-}
-table{
-    text-align: justify;
-    width: 100%;
-}
-td{
+    align-items:center;
+    height: 10vh;
+    display: flex;
+    font-size: 20pt;
+
+
+
+    border: 0.5rem solid midnightblue;
+    border-top-left-radius: 15%;
+    border-bottom-left-radius: 20%;
+    border-top-right-radius: 15%;
+    border-bottom-right-radius:20%;
+    background-color: rgb(228, 228, 238);
+    color:rgb(142, 138, 201);
     padding:10px;
-    font-size:1em;
-}
-input{
-    border:1px solid lightgray;
-    border-radius:10px;
-    height: 20px;
-    max-width: 240px;
-    width: 80%;
-    padding:10px;
-}
-.comment{
-    margin:20px 0;
+    padding-left:30px;
+    padding-right:30px;
+    margin-left:30px;
+
+ 
 }
 
-@media only screen and (max-width:800px) {
-    h3{
-        text-align: center;
-    }
-    #navi{
-        flex-direction: column;
+#btn:hover{
+    color:white;
+    
+}
+
+.index{
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-left: 10px;
+
+    align-items: center;
+    text-align: center;
+
+}
+
+.gamja{
+    
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-left: 10px;
+    
         align-items: center;
-    }
-    .product{
-        width:48%;
-    }
-    .horizontal p{
-        width:100%;
-    }
+        text-align: center;
+    
+    
 }
-@media only screen and (max-width:480px) {
-    .product{
-        width:100%;
-    }
-}
+
+
+
