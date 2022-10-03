@@ -1,6 +1,8 @@
 const passport = require('passport');
 const KakaoStrategy = require('passport-kakao').Strategy;
-const User = require('../models/user');
+const mongoose = require('mongoose');
+const UserSchema = require('../models/schemas/auth');
+mongoose.connect('mongodb://localhost:27017/auth');
 
 module.exports = (app) => {
     app.use(passport.initialize()); // passport를 초기화 하기 위해서 passport.initialize 미들웨어 사용
@@ -15,17 +17,23 @@ module.exports = (app) => {
         // profile: 카카오가 보내준 유저 정보. profile의 정보를 바탕으로 회원가입
         async (accessToken, refreshToken, profile, done) => {
             try {
-                const exUser = await User.findOne({
-                    // 카카오 플랫폼에서 로그인 했고 & snsId필드에 카카오 아이디가 일치할경우
-                    where: { clientID: profile.id, /*providerType: 'kakao'*/ },
-                });
+                console.log(profile);
+                const query = { ID: profile.id };
+                const exUser = await UserSchema.findOne(query);
                 // 이미 가입된 카카오 프로필이면 성공
                 if (exUser) {
+                    console.log('Welcome Back!');
+                    UserSchema.updateOne({
+                        accessToken: accessToken
+                    })
                     done(null, exUser); // 로그인 인증 완료
                 } else {
                     // 가입되지 않는 유저면 회원가입 시키고 로그인을 시킨다
-                    const newUser = await User.create({
-                        clientID: profile.id,
+                    console.log('create newUser!');
+                    const newUser = await UserSchema.create({
+                        ID: profile.id,
+                        userName: profile.username,
+                        accessToken: accessToken,
                     });
                     done(null, newUser); // 회원가입하고 로그인 인증 완료
                 }
@@ -36,10 +44,13 @@ module.exports = (app) => {
         },
         ),
     );
-    passport.serializeUser((user,done)=>{ 
-        done(null,user);
+
+    passport.serializeUser((user, done)=>{ 
+        done(null, user);
     });
-    passport.deserializeUser((user,done)=>{
-        done(null,user);
+    passport.deserializeUser((user, done)=>{
+        done(null, user);
     });
+
+    
 };

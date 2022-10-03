@@ -1,22 +1,31 @@
+require("dotenv").config({path: path.join(__dirname, '/.env')});
 const express = require("express");
 const listRouter = require('./routes/lists');
 const ticketsRouter = require('./routes/tickets');
 const waitingsRouter = require('./routes/waitings');
-const WaitingLists = require('./models/waitingLists');
 const passportConfig = require('./passport/index');
 const userRouter = require('./routes/user');
-
-require("dotenv").config();
-
-console.log(process.env.restAPI);
-
-//대기자 리스트 초기화
-WaitingLists.initialize();
-
+const path = require('path');
+const MongoStore = require('connect-mongo');
+const session = require('express-session');
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/auth')
 const app = express();
+
+console.log('Hi, Cha Cha!');
 
 passportConfig(app);
 app.use(express.json());
+
+app.use(session({ 
+    secret: process.env.sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 86400000, httpOnly: true, secure: true },
+    store: MongoStore.create({
+        mongoUrl: 'mongodb://localhost:27017/auth',
+    }),
+  }));
 
 app.use('/auth', userRouter);
 app.use("/waitings", waitingsRouter);
@@ -24,11 +33,7 @@ app.use("/tickets", ticketsRouter);
 app.use("/lists", listRouter);
 
 app.get('/', (req, res) => {
-    //사용자 ID 발급
-    const mkID = Math.floor(Math.random() * 100000);
-    
-    //redirect
-    res.redirect(`/lists/${mkID}`)
+    res.json('Hello!');
 })
 
 app.use((req, res, next) => {
@@ -48,6 +53,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.listen(PORT);
