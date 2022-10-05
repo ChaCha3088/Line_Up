@@ -31,7 +31,7 @@ module.exports = {
         const objData = JSON.parse(result.session);
         console.log(`ojbData is ${objData.passport.user.ID}`);
         if (req.user.ID == objData) {
-            
+            console.log(`accessAuth is Success!`);
         }
     }
 }

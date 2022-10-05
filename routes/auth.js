@@ -41,13 +41,19 @@ router.get('/kakao/logout', userModel.loginRequired, async (req, res, next)=>{
         // console.log(`ojbData is ${objData.passport.user.ID}`);
         //sessiondb를 지워주고
 
-        let logout = await axios({
+        let postAxios = await axios({
             method:'post',
             url:'https://kapi.kakao.com/v1/user/logout',
             headers:{
-            'Authorization': `Bearer ${accessToken}`
+              'Authorization': `Bearer ${accessToken}`
             }
-        });
+          });
+
+        let postResult = postAxios.data.id;
+        if (req.user.ID == postResult) {
+            console.log(`kakao server said "Logout!"`);
+        }
+
     } catch (error) {
       console.error(error);
       res.json(error);
