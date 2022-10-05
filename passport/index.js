@@ -17,15 +17,14 @@ module.exports = (app) => {
         // profile: 카카오가 보내준 유저 정보. profile의 정보를 바탕으로 회원가입
         async (accessToken, refreshToken, profile, done) => {
             try {
-                console.log(profile);
                 const query = { ID: profile.id };
                 const exUser = await UserSchema.findOne(query);
                 // 이미 가입된 카카오 프로필이면 성공
                 if (exUser) {
                     console.log('Welcome Back!');
-                    UserSchema.updateOne({
+                    await UserSchema.updateOne({
                         accessToken: accessToken
-                    })
+                    }).exec()
                     done(null, exUser); // 로그인 인증 완료
                 } else {
                     // 가입되지 않는 유저면 회원가입 시키고 로그인을 시킨다
@@ -48,6 +47,7 @@ module.exports = (app) => {
     passport.serializeUser((user, done)=>{ 
         done(null, user);
     });
+
     passport.deserializeUser((user, done)=>{
         done(null, user);
     });

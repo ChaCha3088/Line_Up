@@ -1,11 +1,12 @@
+const path = require('path');
 require("dotenv").config({path: path.join(__dirname, '/.env')});
 const express = require("express");
 const listRouter = require('./routes/lists');
 const ticketsRouter = require('./routes/tickets');
 const waitingsRouter = require('./routes/waitings');
 const passportConfig = require('./passport/index');
-const userRouter = require('./routes/user');
-const path = require('path');
+const passport = require('passport');
+const authRouter = require('./routes/auth');
 const MongoStore = require('connect-mongo');
 const session = require('express-session');
 const mongoose = require('mongoose');
@@ -21,13 +22,16 @@ app.use(session({
     secret: process.env.sessionSecret,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 86400000, httpOnly: true, secure: true },
+    cookie: { maxAge: 86400000, httpOnly: true },
     store: MongoStore.create({
         mongoUrl: 'mongodb://localhost:27017/auth',
     }),
-  }));
+    rolling: true,
+}));
 
-app.use('/auth', userRouter);
+app.use(passport.session());
+
+app.use('/auth', authRouter);
 app.use("/waitings", waitingsRouter);
 app.use("/tickets", ticketsRouter);
 app.use("/lists", listRouter);

@@ -4,6 +4,7 @@ const UserSchema = new Schema({
     ID: String,
     userName: String,
     accessToken: String,
+    admin: String,
 }, {
         timestamps: true,
 });
