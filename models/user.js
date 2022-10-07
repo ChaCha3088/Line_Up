@@ -1,3 +1,7 @@
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/auth');
+const Sessions = require('../models/schemas/session');
+
 module.exports = {
     loginRequired : function(req, res, next) {
         if (!req.user) {
@@ -26,12 +30,18 @@ module.exports = {
     }, 
 
     accessAuth: async function(req, res, next) {
-        const result = await Sessions.findOne({'passport.user.ID': `${req.user.ID}`}).exec();
-        console.log(`result is ${result}`);
-        const objData = JSON.parse(result.session);
-        console.log(`ojbData is ${objData.passport.user.ID}`);
-        if (req.user.ID == objData) {
-            console.log(`accessAuth is Success!`);
+        try {
+            const result = await Sessions.findOne({'passport.user.ID': `${req.user.ID}`}).exec();
+            const objData = JSON.parse(result.session);
+            if (req.user.ID === objData.passport.user.ID) {
+                console.log(`accessAuth is Success!`);
+                next()
+            } else {
+                res.redirect('/');
+            }
+        }
+        catch {
+            res.redirect('/');
         }
     }
 }

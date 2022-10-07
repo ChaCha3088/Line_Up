@@ -21,7 +21,7 @@ module.exports = (app) => {
                 const exUser = await UserSchema.findOne(query);
                 // 이미 가입된 카카오 프로필이면 성공
                 if (exUser) {
-                    console.log('Welcome Back!');
+                    console.log(`Welcome Back, ${profile.username}!`);
                     await UserSchema.updateOne({
                         accessToken: accessToken
                     }).exec()

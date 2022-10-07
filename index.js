@@ -3,7 +3,7 @@ require("dotenv").config({path: path.join(__dirname, '/.env')});
 const express = require("express");
 const listRouter = require('./routes/lists');
 const ticketsRouter = require('./routes/tickets');
-const waitingsRouter = require('./routes/waitings');
+const menusRouter = require('./routes/menu');
 const passportConfig = require('./passport/index');
 const passport = require('passport');
 const authRouter = require('./routes/auth');
@@ -32,7 +32,7 @@ app.use(session({
 app.use(passport.session());
 
 app.use('/auth', authRouter);
-app.use("/waitings", waitingsRouter);
+app.use("/menus", menusRouter);
 app.use("/tickets", ticketsRouter);
 app.use("/lists", listRouter);
 

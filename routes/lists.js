@@ -2,30 +2,25 @@ const { Router } = require('express');
 
 const router = Router();
 const path = require('path');
-const WaitingLists = require('../models/waitingLists');
+
+const userModel = require('../models/user');
+const Sessions = require('../models/schemas/session');
+const passport = require('passport');
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/auth');
+const session = require('express-session');
+const express = require("express");
+const app = express();
 
 
 
-router.get("/json", (req, res, next) => {
-    //userID 가져오기
-    const userID = req.params.userID;
+app.use(passport.session());
 
 
 
-    //식당 리스트와 대기인원 보여주기
-    const resultAll = WaitingLists.showAll();
-
-
-
-    //응답부
-    res.json(resultAll);
-});
-
-
-
-router.get("/:userID", (req, res, next) => {
-    //HTML 보내기
-    res.sendFile('lists.html', { root: path.join(__dirname, '../public') });
+router.get("/", (req, res, next) => {
+    console.log('Ha! Ha! Ha! It Works!');
+    res.json('This is Lists Page!');
 });
 
 

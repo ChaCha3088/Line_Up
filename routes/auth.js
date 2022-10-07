@@ -51,7 +51,7 @@ router.get('/kakao/logout', userModel.loginRequired, async (req, res, next)=>{
 
         let postResult = postAxios.data.id;
         if (req.user.ID == postResult) {
-            console.log(`kakao server said "Logout!"`);
+            console.log(`kakao server said "You can Logout now!"`);
         }
 
     } catch (error) {
