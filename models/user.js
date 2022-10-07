@@ -1,7 +1,3 @@
-const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/auth');
-const Sessions = require('../models/schemas/session');
-
 module.exports = {
     loginRequired : function(req, res, next) {
         if (!req.user) {
