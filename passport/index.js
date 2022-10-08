@@ -2,7 +2,7 @@ const passport = require('passport');
 const KakaoStrategy = require('passport-kakao').Strategy;
 const mongoose = require('mongoose');
 const UserSchema = require('../models/schemas/auth');
-mongoose.connect('mongodb://localhost:27017/auth');
+const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
 
 module.exports = (app) => {
     app.use(passport.initialize()); // passport를 초기화 하기 위해서 passport.initialize 미들웨어 사용
@@ -23,8 +23,8 @@ module.exports = (app) => {
                 if (exUser) {
                     console.log(`Welcome Back, ${profile.username}!`);
                     await UserSchema.updateOne({
-                        accessToken: accessToken
-                    }).exec()
+                        kakaoAccessToken: accessToken
+                    }).exec();
                     done(null, exUser); // 로그인 인증 완료
                 } else {
                     // 가입되지 않는 유저면 회원가입 시키고 로그인을 시킨다
@@ -32,7 +32,7 @@ module.exports = (app) => {
                     const newUser = await UserSchema.create({
                         ID: profile.id,
                         userName: profile.username,
-                        accessToken: accessToken,
+                        kakaoAccessToken: accessToken,
                     });
                     done(null, newUser); // 회원가입하고 로그인 인증 완료
                 }

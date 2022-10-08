@@ -7,7 +7,7 @@ const userModel = require('../models/user');
 const Sessions = require('../models/schemas/session');
 const passport = require('passport');
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/auth');
+const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
 const session = require('express-session');
 const express = require("express");
 const app = express();

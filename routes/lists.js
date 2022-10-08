@@ -8,6 +8,8 @@ const AAA = require('../models/schemas/InfoStores/AAA');
 const nal = require('../models/schemas/InfoStores/nal');
 const passport = require('passport');
 const mongoose = require('mongoose');
+const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
+const userModel = require('../models/user');
 const session = require('express-session');
 const express = require("express");
 const app = express();
@@ -18,7 +20,7 @@ app.use(passport.session());
 
 
 
-router.get("/", infoModel.getLists, (req, res, next) => {
+router.get("/", userModel.accessAuth, infoModel.getLists, (req, res, next) => {
     res.json(`This is Lists`);
 });
 

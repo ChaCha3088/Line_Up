@@ -3,19 +3,20 @@ require("dotenv").config({path: path.join(__dirname, '/.env')});
 const express = require("express");
 const listRouter = require('./routes/lists');
 const ticketsRouter = require('./routes/tickets');
-const menusRouter = require('./routes/menu');
+const storesRouter = require('./routes/stores');
 const passportConfig = require('./passport/index');
 const passport = require('passport');
 const authRouter = require('./routes/auth');
 const MongoStore = require('connect-mongo');
 const session = require('express-session');
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/auth')
+const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
 const app = express();
 
 console.log('Hi, Cha Cha!');
 
 passportConfig(app);
+
 app.use(express.json());
 
 app.use(session({ 
@@ -25,6 +26,7 @@ app.use(session({
     cookie: { maxAge: 86400000, httpOnly: true },
     store: MongoStore.create({
         mongoUrl: 'mongodb://localhost:27017/auth',
+        autoRemove: 'native',
     }),
     rolling: true,
 }));
@@ -32,12 +34,13 @@ app.use(session({
 app.use(passport.session());
 
 app.use('/auth', authRouter);
-app.use("/menus", menusRouter);
+app.use("/stores", storesRouter);
 app.use("/tickets", ticketsRouter);
 app.use("/lists", listRouter);
 
 app.get('/', (req, res) => {
-    res.json('Hello!');
+    console.log(req.session);
+    res.json('This is Main Page!');
 })
 
 app.use((req, res, next) => {

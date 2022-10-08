@@ -1,3 +1,7 @@
+const mongoose = require('mongoose');
+const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
+const Sessions = require('../models/schemas/session');
+
 module.exports = {
     loginRequired : function(req, res, next) {
         if (!req.user) {
@@ -31,7 +35,7 @@ module.exports = {
             const objData = JSON.parse(result.session);
             if (req.user.ID === objData.passport.user.ID) {
                 console.log(`accessAuth is Success!`);
-                next()
+                next();
             } else {
                 res.redirect('/');
             }

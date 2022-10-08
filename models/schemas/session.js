@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
+
 const { Schema } = mongoose;
 const session = new Schema({
     _id: String,
@@ -6,4 +8,4 @@ const session = new Schema({
     session: String,
 });
 
-module.exports = mongoose.model('session', session);
+module.exports = connectionAuth.model('session', session);
