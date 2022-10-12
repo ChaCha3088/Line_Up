@@ -15,9 +15,10 @@ app.use(passport.session());
 
 
 
-router.get("/:storeID", userModel.accessAuth, (req, res, next) => {
-    storeModel.getMenus();
-    res.json(`This is stores Page!`)
+router.get("/:storeID", userModel.logInCheckMiddleware, async (req, res, next) => {
+    let storeID = String(req.params.storeID);
+    let result = await storeModel.getMenus(storeID);
+    res.json(result);
 });
 
 

@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 const session = new Schema({
     _id: String,
     expires: Date,
-    session: String,
+    session: Object,
 });
 
 module.exports = connectionAuth.model('session', session);

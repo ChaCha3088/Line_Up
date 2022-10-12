@@ -7,6 +7,6 @@ module.exports = {
         // const jsoneds = JSON.stringify(result);
         // console.log(typeof(jsoneds));
         const results = result.map(e => e.name);
-        console.log(results.sort());
-        next();
+        const resultsLists = results.sort();
+        return resultsLists
     }}

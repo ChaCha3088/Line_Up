@@ -20,8 +20,9 @@ app.use(passport.session());
 
 
 
-router.get("/", userModel.accessAuth, infoModel.getLists, (req, res, next) => {
-    res.json(`This is Lists`);
+router.get("/", userModel.logInCheckMiddleware, async (req, res, next) => {
+    let listResults = await infoModel.getLists(); 
+    res.json(`This is Lists and lists is ${listResults}`);
 });
 
 

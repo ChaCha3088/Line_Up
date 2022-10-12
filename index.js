@@ -27,10 +27,13 @@ app.use(session({
     store: MongoStore.create({
         mongoUrl: 'mongodb://localhost:27017/auth',
         autoRemove: 'native',
+        ttl: 86400,
+        stringify: false
     }),
     rolling: true,
 }));
 
+app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth', authRouter);
@@ -39,8 +42,7 @@ app.use("/tickets", ticketsRouter);
 app.use("/lists", listRouter);
 
 app.get('/', (req, res) => {
-    console.log(req.session);
-    res.json('This is Main Page!');
+    res.sendFile('/Users/mac/Desktop/last/public/main.html');
 })
 
 app.use((req, res, next) => {
@@ -60,6 +62,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-const PORT = 3000;
+const PORT = process.env.port;
 
 app.listen(PORT);

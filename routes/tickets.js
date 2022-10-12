@@ -18,7 +18,7 @@ app.use(passport.session());
 
 
 
-router.get("/", userModel.accessAuth, (req, res, next) => {
+router.get("/", userModel.logInCheckMiddleware, (req, res, next) => {
     console.log('Ha! Ha! Ha! It Works!');
     res.json('This is Tickets Page!');
 });
