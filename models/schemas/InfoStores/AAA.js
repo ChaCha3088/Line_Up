@@ -4,7 +4,9 @@ const connectionInfoStores = mongoose.createConnection('mongodb://localhost:2701
 
 const AAA = new Schema({
     type: String,
-    menu: Object,
+    menu: {
+        someMenu: Number,
+    },
 });
 
 AAA.set('collection', 'AAA');

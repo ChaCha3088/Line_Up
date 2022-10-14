@@ -1,15 +1,32 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const musicList = new Schema({
-    storeID: String,
-    ID: String,
-    artist: String,
-    title: String,
+    storeID: {
+        type: String,
+        required: true
+    },
+    postID: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    ID: {
+        type: String,
+        required: true
+    },
+    artist: {
+        type: String,
+        required: true
+    },
+    title: {
+        type: String,
+        required: true
+    },
     heart: {
         ID: String,
     },
     timestamps: {
-        createdAt: 'createdAt'
+        createdAt: 'created_At',
+        updatedAt: 'updated_At'
     }
 });
 
