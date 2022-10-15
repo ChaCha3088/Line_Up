@@ -1,0 +1,22 @@
+doctype html 
+html(lang='ko')
+
+- let isLoggedIn = loginResult
+- let 
+
+head 
+    title #{pageTitle}
+
+body
+    if isLoggedIn.result == 1
+        div #{isLoggedIn.userName}님 안녕하세요!
+        a(href='http://localhost:1029/auth/kakao/logout') 로그아웃하기!
+        
+        //storeList
+        #{freeBoardListsResult}
+        반복문으로
+        ul
+            li 
+    else
+        div 로그인이 필요합니다.
+        a(href='http://localhost:1029/auth/kakao/') 로그인하기!

@@ -23,15 +23,13 @@ const freeBoardReComment = new Schema({
     },
     contents: {
         type: String,
-        timestamps: {
-            createdAt: 'created_at',
-            updatedAt: 'updated_at'
-        },
         required: true,
     },
     heart: {
         ID: String,
     },
-});
+},
+{ timestamps: true },
+);
 
 module.exports = mongoose.model('freeBoardReComment', freeBoardReComment);

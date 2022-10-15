@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const connectionInfoStores = mongoose.createConnection('mongodb://localhost:27017/InfoStores');
 
 module.exports = {
-    getLists: async function(req, res, next) {
+    getStoreLists: async function() {
         const result = await connectionInfoStores.db.listCollections().toArray();
         // const jsoneds = JSON.stringify(result);
         // console.log(typeof(jsoneds));

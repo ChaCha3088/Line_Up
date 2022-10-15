@@ -12,8 +12,11 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
 const app = express();
+const userModel = require('./models/user');
+const infoModel = require('./models/info');
 
-console.log('Hi, Cha Cha!');
+app.set('views', path.join(__dirname, 'views')); // 폴더 경로 지정
+app.set('view engine' , 'pug'); // 확장자 지정
 
 passportConfig(app);
 
@@ -41,8 +44,19 @@ app.use("/stores", storesRouter);
 app.use("/tickets", ticketsRouter);
 app.use("/lists", listRouter);
 
-app.get('/', (req, res) => {
-    res.sendFile('/Users/mac/Desktop/last/public/main.html');
+app.get('/', async (req, res) => {
+    let loginResult = await userModel.isLogIned(req, res);
+    if (loginResult.result == 1) {
+        let freeBoardListsResult = await infoModel.getStoreLists();
+    }
+    
+    let context = {
+        pageTitle: '메인',
+        loginResult: loginResult,
+        freeBoardListsResult: freeBoardListsResult
+    };
+    
+    res.render('main', context);
 })
 
 app.use((req, res, next) => {
@@ -64,4 +78,6 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.port;
 
-app.listen(PORT);
+app.listen(PORT, () => {
+    console.log('This is Express.js!');
+});

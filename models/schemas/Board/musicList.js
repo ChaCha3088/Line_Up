@@ -24,10 +24,8 @@ const musicList = new Schema({
     heart: {
         ID: String,
     },
-    timestamps: {
-        createdAt: 'created_At',
-        updatedAt: 'updated_At'
-    }
-});
+},
+{ timestamps: true },
+);
 
 module.exports = mongoose.model('musicList', musicList);

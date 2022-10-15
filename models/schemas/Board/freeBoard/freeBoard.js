@@ -19,10 +19,6 @@ const freeBoard = new Schema({
     },
     contents: {
         type: String,
-        timestamps: {
-            createdAt: 'created_at',
-            updatedAt: 'updated_at'
-        },
         required: true,
     },
     comments: {
@@ -32,6 +28,8 @@ const freeBoard = new Schema({
     heart: {
         ID: String,
     },
-});
+},
+{ timestamps: true },
+);
 
 module.exports = mongoose.model('freeBoard', freeBoard);

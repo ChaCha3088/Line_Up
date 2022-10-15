@@ -48,8 +48,10 @@ const findUserInSessionsWithUserID = async function(req) {
             throw new Error('세션 서버에 클라이언트의 kakaoAccessToken와 일치하는 user가 없음');
         } else {
             let userKakaoAccessTokenInSessions = result.session.passport.user.kakaoAccessToken;
+            let ID = result.session.passport.user.ID;
             return {
                 result: result,
+                ID: ID,
                 userKakaoAccessTokenInSessions: userKakaoAccessTokenInSessions
             };
         }
@@ -90,9 +92,41 @@ module.exports = {
     findUserInSessionsWithUserID: findUserInSessionsWithUserID,
     findUserInFreeBoardWithUserID: findUserInFreeBoardWithUserID,
 
-    logInCheckMiddleware: async function(req, res, next) {
+    isLogIned: async function(req, res) {
         try {
             let reqUserID = checkReqUserID(req);
+            let result = await findUserInSessionsWithUserID(req);
+            if (!result) {
+                console.log('You are not loggined.');
+                return {
+                    result: 0,
+                };
+            }
+            if (reqUserID == result.ID && reqUserID && result.ID) {
+                console.log(`You are ${result.result.session.passport.user.userName}`);
+                console.log(`You are good to go!`);
+                return {
+                    result: 1,
+                    userName: result.result.session.passport.user.userName
+                };
+            } else {
+                console.log('You are not loggined.');
+                return {
+                    result: 0,
+                };
+            }
+        }
+        catch (e) {
+            console.log('You are not loggined.');
+                return {
+                    result: 0,
+                };
+        }
+    },
+
+    logInCheckMiddleware: async function(req, res, next) {
+        try {
+            let reqUserKakaoAccessToken = checkReqUserID(req);
             let result = await findUserInSessionsWithUserID(req);
             if (!result) {
                 console.log('You are not loggined.');
@@ -149,14 +183,14 @@ module.exports = {
 
     authorCheckMiddleware: async function(req, res, next) {
         try {
-            let reqUserKakaoAccessToken = checkReqUserKakaoAccessToken(req);
+            let reqUserID = checkReqUserID(req);
             let result = await findUserInFreeBoardWithUserID(req);
             if (!result) {
                 console.log('You are not the author of this one.');
                 backURL();
                 return;
             }
-            if (result) {
+            if (result == reqUserID && result !== undefined && reqUserID !== undefined) {
                 console.log(`You are ${result}`);
                 console.log(`You are good to go!`);
                 next();

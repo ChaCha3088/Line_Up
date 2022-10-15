@@ -28,8 +28,8 @@ module.exports = {
         await freeBoard.create({
             'storeID': storeID,
             'ID': req.user.ID,
-            'title': req.,
-            'contents': req.,
+            'title': req.body,
+            'contents': req.body,
             });
         },
     updateFreeBoardPost: async function(storeID, postID, req) {
@@ -39,8 +39,8 @@ module.exports = {
                 'postID': postID,
             },
             {
-                'title': req.,
-                'contents': req.,
+                'title': req.body,
+                'contents': req.body,
             })
         },
     deleteFreeBoardPost: async function(storeID, postID) {
@@ -68,7 +68,7 @@ module.exports = {
             'storeID': storeID,
             'postID': postID,
             'ID': req.user.ID,
-            'contents': req.,
+            'contents': req.body,
         });
     },
     updateFreeBoardComment: async function(postID, commentID, req) {
@@ -79,7 +79,7 @@ module.exports = {
                 'commentID': commentID
             },
             {
-                'contents': req.,
+                'contents': req.body,
             })
         },
     deleteFreeBoardComment: async function(storeID, postID, commentID) {
@@ -102,7 +102,7 @@ module.exports = {
             'postID': postID,
             'commentID': commentID,
             'ID': req.user.ID,
-            'contents': req.,
+            'contents': req.body,
         });
     },
     updateFreeBoardReComment: async function(postID, commentID, recommentID, req) {
@@ -114,7 +114,7 @@ module.exports = {
                 'recommentID': recommentID
             },
             {
-                'contents': req.,
+                'contents': req.body,
             })
         },
     deleteFreeBoardReComment: async function(storeID, postID, commentID, recommentID) {
@@ -145,8 +145,8 @@ module.exports = {
         await musicList.create({
             'storeID': storeID,
             'ID': req.user.ID,
-            'artist': req.,
-            'title': req.,
+            'artist': req.body,
+            'title': req.body,
             });
         },
     updateSongRequests: async function(storeID, postID, req) {
@@ -156,8 +156,8 @@ module.exports = {
                 'postID': postID,
             },
             {
-                'artist': req.,
-                'title': req.,
+                'artist': req.body,
+                'title': req.body,
             });
         },
     deleteSongRequests: async function(storeID, postID) {
