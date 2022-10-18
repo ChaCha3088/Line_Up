@@ -1,6 +1,17 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const connectionBoards = mongoose.createConnection('mongodb://localhost:27017/Boards');
+const connectionBoards = mongoose.createConnection(process.env.boardServer);
+
+const freeBoardContents = new Schema({
+    contents: {
+        type: String,
+        required: true,
+    },
+},
+{ timestamps: true }
+);
+
+
 
 const freeBoard = new Schema({
     storeID: {
@@ -16,22 +27,16 @@ const freeBoard = new Schema({
         required: true,
     },
     contents: {
-        type: String,
-        required: true,
+        type: freeBoardContents,
+        default: {}
     },
     comments: {
         type: Schema.Types.ObjectId,
         ref: 'freeBoardComment',
     },
-    recomments: {
-        type: Schema.Types.ObjectId,
-        ref: 'freeBoardReComment',
-    },
     heart: {
         type: Array,
     },
-},
-{ timestamps: true },
-);
+});
 
 module.exports = connectionBoards.model('freeBoard', freeBoard);

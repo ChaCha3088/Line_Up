@@ -1,20 +1,40 @@
-const mongoose = require('mongoose');
-const connectionInfoStores = mongoose.createConnection('mongodb://localhost:27017/InfoStores');
 const freeBoard = require('./schemas/Board/freeBoard/freeBoard');
 const freeBoardComment = require('./schemas/Board/freeBoard/freeBoardComment');
 const freeBoardReComment = require('./schemas/Board/freeBoard/freeBoardReComment');
 const musicList = require('../models/schemas/Board/musicList');
+const { Schema } = require('mongoose');
+
+const findValue = function (targetObj, value) {
+    if (Object.keys(targetObj).find(key => targetObj[key] === value)) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 
 
 module.exports = {
+    findValue: findValue,
+
+
+
     getFreeBoardLists: async function(storeID, pages) {
-        let result = await freeBoard.find({'storeID': storeID}).skip((pages-1) * 20).limit(20).sort({'createdAt': -1})
+        let result = await freeBoard.find({'storeID': storeID}).skip((pages-1) * 20).limit(20).sort({'contents.createdAt': -1})
         .populate({
             path: 'comments',
+            options: {
+                sort: {
+                    'contents.created_at': 1
+                }
+            },
             populate: {
                 path: 'recomments',
-        }})
+                options: {
+                    sort: {
+                        'contents.created_at': 1
+                    }
+        }}})
         .exec();
         //storeID가 storeID인 것을 page 수에 맞게 20개 찾아
         //제목 최대 20글자, 내용 조금 40글자, 작성 시간, Heart 개수, Comment + ReComment 개수
@@ -26,9 +46,18 @@ module.exports = {
     getFreeBoardPost: async function(postID) {
         let result = await freeBoard.findOne({'_id': postID}).populate({
             path: 'comments',
+            options: {
+                sort: {
+                    'contents.created_at': 1
+                }
+            },
             populate: {
                 path: 'recomments',
-        }})
+                options: {
+                    sort: {
+                        'contents.created_at': 1
+                    }
+        }}})
         .exec();
         return result;
     },
@@ -37,10 +66,37 @@ module.exports = {
             'storeID': storeID,
             'email': req.user.email,
             'title': req.body.title,
-            'contents': req.body.contents,
-            'heart': [],
+            'contents': {
+                'contents': req.body.contents
+            },
+            'heart': []
             });
         return result;
+        },
+    postFreeBoardPostHeart: async function(storeID, postID, req) {
+        try {
+            let email = req.user.email
+            let result =  await freeBoard.findOne({
+                'storeID': storeID,
+                '_id': postID
+            });
+            let exist = findValue(result.heart, req.user.email);
+            if (exist == false) {
+                let whats = await freeBoard.findOneAndUpdate({
+                    'storeID': storeID,
+                    '_id': postID
+                }, {
+                    $push: {
+                        'heart': email
+                    }
+                });                
+                return 1;
+            } else {
+                return 0;
+            }} catch (e) {
+                console.log(e);
+                return 0;
+            }
         },
     updateFreeBoardPost: async function(storeID, postID, req) {
         await freeBoard.findOneAndUpdate(
@@ -50,8 +106,10 @@ module.exports = {
             },
             {
                 'title': req.body.title,
-                'contents': req.body.contents,
-            })
+                'contents': {
+                    'contents': req.body.contents,
+                }
+            });
         },
     deleteFreeBoardPost: async function(storeID, postID) {
         await freeBoard.findOneAndDelete(
@@ -79,13 +137,16 @@ module.exports = {
 
 
 
-    postFreeBoardComment: async function(storeID, postID, req) {
-        await freeBoardComment.create({
+    postFreeBoardComment: async function(storeID, req) {
+        let result =  await freeBoardComment.create({
             'storeID': storeID,
-            '_id': postID,
             'email': req.user.email,
-            'contents': req.body.contents,
-        });
+            'contents': {
+                'contents': req.body.comment
+            },
+            'heart': []
+            });
+        return result;
     },
     updateFreeBoardComment: async function(_id, commentID, req) {
         await freeBoardComment.findOneAndUpdate(
@@ -130,7 +191,7 @@ module.exports = {
                 'recommentID': recommentID
             },
             {
-                'contents': req.body,
+                'contents': req.body.recomment,
             })
         },
     deleteFreeBoardReComment: async function(storeID, _id, commentID, recommentID) {
@@ -186,11 +247,6 @@ module.exports = {
 
 
 
-    getMenus: async function(storeID) {
-        const queryInput = { type: "menu" };
-        const storeCollection = connectionInfoStores.db.collection(`${storeID}`);
-        const result = await storeCollection.findOne(queryInput, {lean: true});
-        return result.menu;
-    },
+    
 
 }

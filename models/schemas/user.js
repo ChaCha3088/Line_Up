@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
+const connectionAuth = mongoose.createConnection(process.env.authServer);
 
 const { Schema } = mongoose;
 const UserSchema = new Schema({

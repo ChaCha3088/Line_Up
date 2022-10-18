@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
 const Sessions = require('../models/schemas/session');
 const freeBoard = require('./schemas/Board/freeBoard/freeBoard');
 const crypto = require('crypto');

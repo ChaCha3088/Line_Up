@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const connectionInfoStores = mongoose.createConnection('mongodb://localhost:27017/InfoStores');
+const connectionInfoStores = mongoose.createConnection(process.env.infoServer);
 
 const nal = new Schema({
     킬바사소세지: Number,

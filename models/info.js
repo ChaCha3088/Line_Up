@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const connectionInfoStores = mongoose.createConnection('mongodb://localhost:27017/InfoStores');
+const connectionInfoStores = mongoose.createConnection(process.env.infoServer);
 
 module.exports = {
     getStoreLists: async function() {
@@ -9,5 +9,12 @@ module.exports = {
         const results = result.map(e => e.name);
         const resultsLists = results.sort();
         return results
+    },
+
+    getMenus: async function(storeID) {
+        const queryInput = { type: "menu" };
+        const storeCollection = connectionInfoStores.db.collection(`${storeID}`);
+        const result = await storeCollection.findOne(queryInput, {lean: true});
+        return result.menu;
     },
 }

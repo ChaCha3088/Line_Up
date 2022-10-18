@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const connectionOrder = mongoose.createConnection(process.env.orderServer);
+
 const AAA = new Schema({
     storeID: String,
     ID: String,
@@ -9,4 +11,4 @@ const AAA = new Schema({
     }
 });
 
-module.exports = mongoose.model('AAA', AAA);
+module.exports = connectionOrder.model('AAA', AAA);

@@ -9,8 +9,6 @@ const passportConfig = require("./passport");
 const authRouter = require('./routes/auth');
 const MongoStore = require('connect-mongo');
 const session = require('express-session');
-const mongoose = require('mongoose');
-const connectionAuth = mongoose.createConnection(process.env.authSessionServer);
 const app = express();
 const userModel = require('./models/user');
 const infoModel = require('./models/info');
@@ -32,7 +30,7 @@ app.use(session({
         return uuid.v4();
     },
     store: MongoStore.create({
-        mongoUrl: process.env.authSessionServer,
+        mongoUrl: process.env.authServer,
         autoRemove: 'native',
         ttl: 86400,
         stringify: false

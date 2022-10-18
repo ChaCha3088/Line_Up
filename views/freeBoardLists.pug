@@ -14,10 +14,10 @@ body
             article
                 a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+i._id)
                     h3 #{i.email}
-                    - createdTime = new Date(i.createdAt).toLocaleString();
+                    - createdTime = new Date(i.contents.createdAt).toLocaleString();
                     time 작성: #{createdTime}
                     h2 #{i.title}
-                    p #{i.contents}
+                    p #{i.contents.contents}
                     ul  
                         if i.heart !== undefined
                             li 좋아요: #{Object.keys(i.heart).length}

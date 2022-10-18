@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const connectionOrder = mongoose.createConnection(process.env.orderServer);
+
 const 날터 = new Schema({
     storeID: String,
     ID: String,
@@ -9,4 +11,4 @@ const 날터 = new Schema({
     }
 });
 
-module.exports = mongoose.model('날터', 날터);
+module.exports = connectionOrder.model('날터', 날터);
