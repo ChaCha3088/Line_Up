@@ -1,0 +1,16 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    form(action=env.URL+'/stores/'+storeID+'/freeBoards/write' method="POST")
+        p
+            input(placeholder="제목", name="title", type="text", required)
+        p
+            input(placeholder="내용", name="contents", type="text", required)
+        p
+            input(type="submit", value="작성")

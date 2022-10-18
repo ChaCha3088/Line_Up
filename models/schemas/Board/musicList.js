@@ -9,7 +9,7 @@ const musicList = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
-    ID: {
+    email: {
         type: String,
         required: true
     },
@@ -22,7 +22,7 @@ const musicList = new Schema({
         required: true
     },
     heart: {
-        ID: String,
+        email: String,
     },
 },
 { timestamps: true },

@@ -3,9 +3,17 @@ const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth
 
 const { Schema } = mongoose;
 const UserSchema = new Schema({
-    ID: String,
-    userName: String,
-    kakaoAccessToken: String,
+    userName: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    salt: String,
+    hash: String,
     admin: String,
 }, {
         timestamps: true,

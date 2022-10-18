@@ -1,0 +1,23 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    h1
+        div #{storeID}
+    header
+        nav
+            ul
+                li
+                    //자유게시판
+                    a(href=env.URL+'/stores/'+pageTitle+'/freeBoards/pages/1') 자유게시판
+                li
+                    //신청곡
+                    a(href=env.URL+'/stores/'+pageTitle+'/songRequests/pages/1') 신청곡
+                li
+                    //주문
+                    a(href=env.URL+'/stores/'+pageTitle+'/orders/tables/') 테이블 선택

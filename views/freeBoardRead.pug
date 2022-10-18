@@ -1,0 +1,37 @@
+- env = process.env;
+- createdTime = new Date(result.createdAt).toLocaleString();
+- if (result.heart !== undefined) { let a = Object.keys(result.heart).length}
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    div
+        article
+            div
+                h3 #{result.email}
+                time 작성: #{createdTime}
+                if result.createdAt !== result.updatedAt
+                    - updatedTime = new Date(result.updatedAt).toLocaleString();
+                    time 수정: #{updatedTime}
+                if result.email == req.user.email
+                    a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/modify') 수정
+                    a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/delete') 삭제
+                h2 #{result.title}
+                p #{result.contents}
+                ul 
+                    if result.heart !== undefined
+                        li 좋아요: #{Object.keys(result.heart).length}
+                    else
+                        li 좋아요: 0
+                    if result.comments == undefined && result.recomments == undefined
+                        li 댓글: 0
+                    else if result.comments !== undefined && result.recomments == undefined
+                        li 댓글: #{Object.keys(result.comments).length}
+                    else if result.comments !== undefined && result.recomments !== undefined
+                        li 댓글: #{Object.keys(result.comments).length + Object.keys(result.recomments).length}
+                
+                

@@ -1,0 +1,16 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    form(action=env.URL+'/auth/login' method="POST")
+        p
+            input(placeholder="이메일", name="email", type="email", required)
+        p
+            input(placeholder="비밀번호", name="pw", type="password", required)
+        p
+            input(type="submit", value="로그인")

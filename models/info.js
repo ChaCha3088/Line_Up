@@ -8,5 +8,6 @@ module.exports = {
         // console.log(typeof(jsoneds));
         const results = result.map(e => e.name);
         const resultsLists = results.sort();
-        return resultsLists
-    }}
+        return results
+    },
+}

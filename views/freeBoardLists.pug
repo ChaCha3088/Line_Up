@@ -1,0 +1,31 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    a(href=env.URL+'/stores/'+storeID+'/freeBoards/write') 게시글 작성하기
+
+    ul
+        each i in freeBoardListsResult
+            article
+                a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+i._id)
+                    h3 #{i.email}
+                    - createdTime = new Date(i.createdAt).toLocaleString();
+                    time 작성: #{createdTime}
+                    h2 #{i.title}
+                    p #{i.contents}
+                    ul  
+                        if i.heart !== undefined
+                            li 좋아요: #{Object.keys(i.heart).length}
+                        else
+                            li 좋아요: 0
+                        if i.comments == undefined && i.recomments == undefined
+                            li 댓글: 0
+                        else if i.comments !== undefined && i.recomments == undefined
+                            li 댓글: #{Object.keys(i.comments).length}
+                        else if i.comments !== undefined && i.recomments !== undefined
+                            li 댓글: #{Object.keys(i.comments).length + Object.keys(i.recomments).length}

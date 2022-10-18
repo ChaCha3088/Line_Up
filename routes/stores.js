@@ -17,64 +17,90 @@ app.use(passport.session());
 //store의 메인 페이지
 router.get("/:storeID", userModel.logInCheckMiddleware, async (req, res, next) => {
     let storeID = String(req.params.storeID);
-    res.sendFile('/Users/mac/Desktop/last/public/AAA/stores.html');
+    const context = {
+        pageTitle: storeID,
+        storeID: storeID,
+    };
+    res.render('store', context);
 });
 
 
 
 //store의 자유게시판 글 목록
 router.get("/:storeID/freeBoards/pages/:pages", userModel.logInCheckMiddleware, async (req, res, next) => {
-    res.sendFile('/Users/mac/Desktop/last/public/AAA/stores.html')
-    let pages = String(req.params.pages);
     let storeID = String(req.params.storeID);
-    let result = await storeModel.getFreeBoardLists(storeID, pages);
-    res.json(result);
+    let pages = String(req.params.pages);
+    let freeBoardListsResult = await storeModel.getFreeBoardLists(storeID, pages);
+    const context = {
+        pageTitle: storeID,
+        storeID: storeID,
+        freeBoardListsResult: freeBoardListsResult
+    };
+    res.render('freeBoardLists', context);
 });
 
 
 
 //store의 자유게시판의 글 읽기
 router.get("/:storeID/freeBoards/posts/:postID", userModel.logInCheckMiddleware, async (req, res, next) => {
+    let storeID = String(req.params.storeID);
     let postID = String(req.params.postID);
     let result = await storeModel.getFreeBoardPost(postID);
-    res.json(result);
+    let context = {
+        result: result,
+        storeID: storeID,
+    postID: postID,
+        req: req
+    }
+    res.render('freeBoardRead', context);
 });
 //store의 자유게시판의 글 작성 페이지
-router.get("/:storeID/freeBoards/posts/write", userModel.logInCheckMiddleware, async (req, res, next) => {
-    res.sendFile('/Users/mac/Desktop/last/public/AAA/write.html');
+router.get("/:storeID/freeBoards/write", userModel.logInCheckMiddleware, async (req, res, next) => {
+    let storeID = String(req.params.storeID);
+    let context = {
+        pageTitle: '게시글 작성',
+        storeID: storeID
+    };
+    res.render('freeBoardWrite', context);
 });
 //store의 자유게시판의 글 수정 페이지
 router.get("/:storeID/freeBoards/posts/:postID/modify", userModel.logInCheckMiddleware, userModel.authorCheckMiddleware, async (req, res, next) => {
+    let storeID = String(req.params.storeID);
     let postID = String(req.params.postID);
     let result = await storeModel.getFreeBoardPost(postID);
-    res.json(result);
-    res.sendFile('/Users/mac/Desktop/last/public/modify.html');
+    let context = {
+        pageTitle: '게시글 수정',
+        storeID: storeID,
+        postID: postID,
+        result: result
+    };
+    res.render('freeBoardModify', context);
 });
 //store의 자유게시판의 글 작성 post 요청
-router.post('/:storeID/freeBoards/posts/write', userModel.logInCheckMiddleware, userModel.authorCheckMiddleware, async (req, res, next) => {
+router.post('/:storeID/freeBoards/write', userModel.logInCheckMiddleware, async (req, res, next) => {
     let storeID = String(req.params.storeID);
     let result = await storeModel.postFreeBoardPost(storeID, req);
-    res.json(result);
+    res.redirect(`/stores/${storeID}/freeBoards/posts/${result._id}`);
 });
 //store의 자유게시판의 글 수정 update 요청
-router.put('/:storeID/freeBoards/posts/:postID/modify', userModel.logInCheckMiddleware, userModel.authorCheckMiddleware, async (req, res, next) => {
+router.post('/:storeID/freeBoards/posts/:postID/modify', userModel.logInCheckMiddleware, userModel.authorCheckMiddleware, async (req, res, next) => {
     let storeID = String(req.params.storeID);
     let postID = String(req.params.postID);
-    let result = await storeModel.updateFreeBoardPost(storeID, postID, req);
-    res.json(result);
+    await storeModel.updateFreeBoardPost(storeID, postID, req);
+    res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
 });
 //store의 자유게시판의 글 삭제 delete 요청
-router.delete('/:storeID/freeBoards/posts/:postID/delete', userModel.logInCheckMiddleware, userModel.authorCheckMiddleware, async (req, res, next) => {
+router.get('/:storeID/freeBoards/posts/:postID/delete', userModel.logInCheckMiddleware, userModel.authorCheckMiddleware, async (req, res, next) => {
     let storeID = String(req.params.storeID);
     let postID = String(req.params.postID);
-    let result = await storeModel.deleteFreeBoardPost(storeID, postID, req);
-    res.json(result);
+    await storeModel.deleteFreeBoardPost(storeID, postID, req);
+    res.redirect(`/stores/${storeID}/freeBoards/pages/1`);
 });
 
 
 
 //store의 자유게시판의 댓글 작성 post 요청
-router.post("/:storeID/freeBoards/posts/:postID/comment/write", userModel.logInCheckMiddleware, userModel.authorCheckMiddleware, async (req, res, next) => {
+router.post("/:storeID/freeBoards/posts/:postID/write", userModel.logInCheckMiddleware, async (req, res, next) => {
     let storeID = String(req.params.storeID);
     let postID = String(req.params.postID);
     let result = await postFreeBoardComment(storeID, postID, req);
@@ -100,7 +126,7 @@ router.delete("/:storeID/freeBoards/posts/:postID/comment/:commentID/delete", us
 
 
 //store의 자유게시판의 대댓글 작성 post 요청
-router.post("/:storeID/freeBoards/posts/:postID/comment/:commentID/recomment/:recommentID/write", userModel.logInCheckMiddleware, userModel.authorCheckMiddleware, async (req, res, next) => {
+router.post("/:storeID/freeBoards/posts/:postID/comment/:commentID/write", userModel.logInCheckMiddleware, async (req, res, next) => {
     let storeID = String(req.params.storeID);
     let postID = String(req.params.postID);
     let commentID = String(req.params.commentID);
@@ -139,7 +165,7 @@ router.get("/:storeID/songRequests/pages/:pages", userModel.logInCheckMiddleware
 
 
 //store의 신청곡 글 작성 post 요청
-router.post('/:storeID/songRequests/posts/write', userModel.logInCheckMiddleware, userModel.authorCheckMiddleware, async (req, res, next) => {
+router.post('/:storeID/songRequests/write', userModel.logInCheckMiddleware, async (req, res, next) => {
     let storeID = String(req.params.storeID);
     let result = await storeModel.postSongRequests(storeID, req);
     res.json(result);

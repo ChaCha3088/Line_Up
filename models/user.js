@@ -1,21 +1,14 @@
 const mongoose = require('mongoose');
 const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
 const Sessions = require('../models/schemas/session');
-const freeBoard = require('../models/schemas/Board/freeBoard/freeBoard');
+const freeBoard = require('./schemas/Board/freeBoard/freeBoard');
+const crypto = require('crypto');
 
-const backURL = function(req) {
-    if (req.session.backURL) {
-        res.redirect(req.session.backURL);
-    } else {
-        res.redirect('back');
-    }
-}
-
-const checkReqUserKakaoAccessToken = function(req) {
+const checkReqSessionID = function(req) {
     try {
-        let a = req.user.kakaoAccessToken;
+        let a = req.sessionID;
         if(!a) {
-            throw new Error('클라이언트에 kakaoAccessToken이 없음');
+            throw new Error('req에 sessionID가 없음');
         } else {
             return a;
         }
@@ -24,9 +17,9 @@ const checkReqUserKakaoAccessToken = function(req) {
     }
 }
 
-const checkReqUserID = function(req) {
+const checkReqUserEmail = function(req) {
     try {
-        let a = req.user.ID;
+        let a = req.user.email;
         if(!a) {
             throw new Error('클라이언트에 ID가 없음');
         } else {
@@ -37,22 +30,22 @@ const checkReqUserID = function(req) {
     }
 }
 
-const findUserInSessionsWithUserID = async function(req) {
+const findUserInSessionsWithSessionID = async function(req) {
     try {
-        let a = req.user.ID;
+        let a = req.sessionID;
         if (!a) {
-            throw new Error('클라이언트에 ID 없음');
+            throw new Error('req에 sessionID가 없음');
         }
-        let result = await Sessions.findOne({'session.passport.user.ID': `${a}`}).exec();
+        let result = await Sessions.findOne({'_id': `${a}`}).exec();
         if (!result) {
-            throw new Error('세션 서버에 클라이언트의 kakaoAccessToken와 일치하는 user가 없음');
+            throw new Error('세션 서버에 req.sessionID와 일치하는 user가 없음');
         } else {
-            let userKakaoAccessTokenInSessions = result.session.passport.user.kakaoAccessToken;
-            let ID = result.session.passport.user.ID;
+            let sessionServerSessionID = result._id;
+            let email = result.session.passport.user.email;
             return {
                 result: result,
-                ID: ID,
-                userKakaoAccessTokenInSessions: userKakaoAccessTokenInSessions
+                email: email,
+                sessionServerSessionID: sessionServerSessionID
             };
         }
     } catch (e) {
@@ -60,25 +53,24 @@ const findUserInSessionsWithUserID = async function(req) {
     }
 }
 
-const findUserInFreeBoardWithUserID = async function(req) {
+const findUserInFreeBoardWithEmail = async function(req) {
     try {
         let storeID = String(req.params.storeID);
         let postID = String(req.params.postID);
-        let a = req.user.ID;
-        if (!a || !storeID || !postID) {
+        let email = req.user.email;
+        if (!email || !storeID || !postID) {
             throw new Error('클라이언트에 충분한 정보가 없음');
         }
         let result = await freeBoard.findOne({
-            'ID': `${a}`,
             'storeID': storeID,
-            'postID': postID
+            '_id': postID
         }).exec();
         if (!result) {
-            throw new Error('freeBoard에 클라이언트의 ID, storeID, postID와 일치하는 게시물이 없음');
-        } else if (result.ID == a && result.ID !== undefined && a!== undefined) {
-            return result.ID;
+            throw new Error('freeBoard에 클라이언트의 email, storeID, postID와 일치하는 게시물이 없음');
+        } else if (result.email == email && result.email !== undefined && email!== undefined) {
+            return result.email;
         } else {
-            throw new Error('게시글의 작성자와 요청자의 ID가 다르거나 undefined가 있음');
+            throw new Error('게시글의 작성자와 요청자의 email이 다르거나 undefined가 있음');
         }
     } catch (e) {
         return;
@@ -86,23 +78,47 @@ const findUserInFreeBoardWithUserID = async function(req) {
 }
 
 module.exports = {
-    backURL: backURL,
-    checkReqUserKakaoAccessToken: checkReqUserKakaoAccessToken,
-    checkReqUserID: checkReqUserID,
-    findUserInSessionsWithUserID: findUserInSessionsWithUserID,
-    findUserInFreeBoardWithUserID: findUserInFreeBoardWithUserID,
+    checkReqSessionID: checkReqSessionID,
+    checkReqUserEmail: checkReqUserEmail,
+    findUserInSessionsWithSessionID: findUserInSessionsWithSessionID,
+    findUserInFreeBoardWithEmail: findUserInFreeBoardWithEmail,
+
+    // 사용자가 입력한 패스워드를 해쉬로 만들어서 비교하여 해당 패스워드가 맞는지 확인하는 함수
+    validPassword: function(password, hash, salt) {
+        const hashVerify = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+        return hash === hashVerify;
+    },
+
+    // 사용자가 입력한 패스워드에 랜덤한 salt를 대입하여 해쉬를 만들어 반환
+    genPassword: function(password) {
+        const salt = crypto.randomBytes(32).toString('hex');
+        const genHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+
+        return {
+            salt: salt,
+            hash: genHash
+        }
+    },
+
+    userInfo: function(req) {
+        try {
+            return req.user;
+        } catch {
+            return;
+        }
+    },
 
     isLogIned: async function(req, res) {
         try {
-            let reqUserID = checkReqUserID(req);
-            let result = await findUserInSessionsWithUserID(req);
+            let reqUserEmail = checkReqUserEmail(req);
+            let result = await findUserInSessionsWithSessionID(req);
             if (!result) {
                 console.log('You are not loggined.');
                 return {
                     result: 0,
                 };
             }
-            if (reqUserID == result.ID && reqUserID && result.ID) {
+            if (reqUserEmail == result.email && reqUserEmail !== undefined && result.email !== undefined ) {
                 console.log(`You are ${result.result.session.passport.user.userName}`);
                 console.log(`You are good to go!`);
                 return {
@@ -126,8 +142,8 @@ module.exports = {
 
     logInCheckMiddleware: async function(req, res, next) {
         try {
-            let reqUserKakaoAccessToken = checkReqUserID(req);
-            let result = await findUserInSessionsWithUserID(req);
+            let reqSessionID = checkReqSessionID(req);
+            let result = await findUserInSessionsWithSessionID(req);
             if (!result) {
                 console.log('You are not loggined.');
                 req.session.destroy();
@@ -135,7 +151,7 @@ module.exports = {
                 res.redirect('/');
                 return;
             }
-            if (reqUserKakaoAccessToken == result.userKakaoAccessTokenInSessions && reqUserKakaoAccessToken && result.userKakaoAccessTokenInSessions) {
+            if (reqSessionID == result.sessionServerSessionID && reqSessionID !== undefined && result.sessionServerSessionID !== undefined ) {
                 console.log(`You are ${result.result.session.passport.user.userName}`);
                 console.log(`You are good to go!`);
                 next();
@@ -159,13 +175,13 @@ module.exports = {
 
     alreadyLogInCheckMiddleware: async function(req, res, next) {
         try {
-            let reqUserKakaoAccessToken = checkReqUserKakaoAccessToken(req);
-            let result = await findUserInSessionsWithUserID(req);
+            let reqSessionID = checkReqSessionID(req);
+            let result = await findUserInSessionsWithSessionID(req);
             if (!result) {
                 next();
                 return;
             }
-            if (reqUserKakaoAccessToken == result.userKakaoAccessTokenInSessions && reqUserKakaoAccessToken && result.userKakaoAccessTokenInSessions) {
+            if (reqSessionID == result.sessionServerSessionID && reqSessionID !== undefined && result.sessionServerSessionID !== undefined) {
                 console.log(`You are ${result.result.session.passport.user.userName}`);
                 console.log('You are already loggined.');
                 res.redirect('/');
@@ -183,27 +199,28 @@ module.exports = {
 
     authorCheckMiddleware: async function(req, res, next) {
         try {
-            let reqUserID = checkReqUserID(req);
-            let result = await findUserInFreeBoardWithUserID(req);
-            if (!result) {
+            let reqUserEmail = checkReqUserEmail(req);
+            let result = await findUserInFreeBoardWithEmail(req);
+            if (reqUserEmail !== result) {
                 console.log('You are not the author of this one.');
-                backURL();
+                console.log(req.session.back)
+                res.redirect('back');
                 return;
             }
-            if (result == reqUserID && result !== undefined && reqUserID !== undefined) {
+            if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
                 console.log(`You are ${result}`);
                 console.log(`You are good to go!`);
                 next();
             } else {
                 console.log('You are not the author of this one.');
-                backURL();
+                res.redirect('back');
                 return;
             }
         }
         catch (e) {
             console.log('You are not the author of this one.');
             console.log(e);
-            backURL();
+            res.redirect('back');
             return;
         }
     },

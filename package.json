@@ -28,6 +28,8 @@
     "nodemon": "^2.0.20",
     "passport": "^0.6.0",
     "passport-kakao": "^1.0.1",
-    "pug": "^3.0.2"
+    "passport-local": "^1.0.0",
+    "pug": "^3.0.2",
+    "uuid": "^9.0.0"
   }
 }

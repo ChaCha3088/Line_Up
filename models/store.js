@@ -1,18 +1,21 @@
 const mongoose = require('mongoose');
 const connectionInfoStores = mongoose.createConnection('mongodb://localhost:27017/InfoStores');
-const connectionFreeBoards = mongoose.createConnection('mongodb://localhost:27017/InfoStores');
-const AAA = require('../models/schemas/InfoStores/AAA');
-const nal = require('../models/schemas/InfoStores/nal');
-const freeBoard = require('../models/schemas/Board/freeBoard/freeBoard');
-const freeBoardComment = require('../models/schemas/Board/freeBoard/freeBoardComment');
-const freeBoardReComment = require('../models/schemas/Board/freeBoard/freeBoardReComment');
+const freeBoard = require('./schemas/Board/freeBoard/freeBoard');
+const freeBoardComment = require('./schemas/Board/freeBoard/freeBoardComment');
+const freeBoardReComment = require('./schemas/Board/freeBoard/freeBoardReComment');
 const musicList = require('../models/schemas/Board/musicList');
 
 
 
 module.exports = {
     getFreeBoardLists: async function(storeID, pages) {
-        let result = await freeBoard.find({'storeID': storeID}).skip((pages-1) * 20).limit(20).sort({'contents.timestamps.createdAt': -1});
+        let result = await freeBoard.find({'storeID': storeID}).skip((pages-1) * 20).limit(20).sort({'createdAt': -1})
+        .populate({
+            path: 'comments',
+            populate: {
+                path: 'recomments',
+        }})
+        .exec();
         //storeID가 storeID인 것을 page 수에 맞게 20개 찾아
         //제목 최대 20글자, 내용 조금 40글자, 작성 시간, Heart 개수, Comment + ReComment 개수
         return result;
@@ -21,44 +24,57 @@ module.exports = {
 
 
     getFreeBoardPost: async function(postID) {
-        let result = await freeBoard.findById(postID);
+        let result = await freeBoard.findOne({'_id': postID}).populate({
+            path: 'comments',
+            populate: {
+                path: 'recomments',
+        }})
+        .exec();
         return result;
     },
     postFreeBoardPost: async function(storeID, req) {
-        await freeBoard.create({
+        let result =  await freeBoard.create({
             'storeID': storeID,
-            'ID': req.user.ID,
-            'title': req.body,
-            'contents': req.body,
+            'email': req.user.email,
+            'title': req.body.title,
+            'contents': req.body.contents,
+            'heart': [],
             });
+        return result;
         },
     updateFreeBoardPost: async function(storeID, postID, req) {
         await freeBoard.findOneAndUpdate(
             {
                 'storeID': storeID,
-                'postID': postID,
+                '_id': postID,
             },
             {
-                'title': req.body,
-                'contents': req.body,
+                'title': req.body.title,
+                'contents': req.body.contents,
             })
         },
     deleteFreeBoardPost: async function(storeID, postID) {
-        await freeBoard.deleteMany(
+        await freeBoard.findOneAndDelete(
+            {
+                'storeID': storeID,
+                '_id': postID
+            })
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'recomments',
+            }})
+            .exec();
+        await freeBoardComment.findOneAndDelete(
             {
                 'storeID': storeID,
                 'postID': postID
-            });
-        await freeBoardComment.deleteMany(
+            }).exec();
+        await freeBoardReComment.findOneAndDelete(
             {
                 'storeID': storeID,
                 'postID': postID
-            });
-        await freeBoardReComment.deleteMany(
-            {
-                'storeID': storeID,
-                'postID': postID
-            });
+            }).exec();
         },
 
 
@@ -66,27 +82,27 @@ module.exports = {
     postFreeBoardComment: async function(storeID, postID, req) {
         await freeBoardComment.create({
             'storeID': storeID,
-            'postID': postID,
-            'ID': req.user.ID,
-            'contents': req.body,
+            '_id': postID,
+            'email': req.user.email,
+            'contents': req.body.contents,
         });
     },
-    updateFreeBoardComment: async function(postID, commentID, req) {
+    updateFreeBoardComment: async function(_id, commentID, req) {
         await freeBoardComment.findOneAndUpdate(
             {
                 'storeID': storeID,
-                'postID': postID,
+                '_id': _id,
                 'commentID': commentID
             },
             {
                 'contents': req.body,
             })
         },
-    deleteFreeBoardComment: async function(storeID, postID, commentID) {
+    deleteFreeBoardComment: async function(storeID, _id, commentID) {
         await freeBoardComment.findOneAndUpdate(
             {
                 'storeID': storeID,
-                'postID': postID,
+                '_id': _id,
                 'commentID': commentID
             },
             {
@@ -96,20 +112,20 @@ module.exports = {
 
 
 
-    postFreeBoardReComment: async function(storeID, postID, commentID, req) {
+    postFreeBoardReComment: async function(storeID, _id, commentID, req) {
         await freeBoardReComment.create({
             'storeID': storeID,
-            'postID': postID,
+            '_id': _id,
             'commentID': commentID,
             'ID': req.user.ID,
             'contents': req.body,
         });
     },
-    updateFreeBoardReComment: async function(postID, commentID, recommentID, req) {
+    updateFreeBoardReComment: async function(_id, commentID, recommentID, req) {
         await freeBoardReComment.findOneAndUpdate(
             {
                 'storeID': storeID,
-                'postID': postID,
+                '_id': _id,
                 'commentID': commentID,
                 'recommentID': recommentID
             },
@@ -117,11 +133,11 @@ module.exports = {
                 'contents': req.body,
             })
         },
-    deleteFreeBoardReComment: async function(storeID, postID, commentID, recommentID) {
+    deleteFreeBoardReComment: async function(storeID, _id, commentID, recommentID) {
         await freeBoardReComment.findOneAndUpdate(
             {
                 'storeID': storeID,
-                'postID': postID,
+                '_id': _id,
                 'commentID': commentID,
                 'recommentID': recommentID
             },
@@ -149,22 +165,22 @@ module.exports = {
             'title': req.body,
             });
         },
-    updateSongRequests: async function(storeID, postID, req) {
+    updateSongRequests: async function(storeID, _id, req) {
         await musicList.findOneAndUpdate(
             {
                 'storeID': storeID,
-                'postID': postID,
+                '_id': _id,
             },
             {
                 'artist': req.body,
                 'title': req.body,
             });
         },
-    deleteSongRequests: async function(storeID, postID) {
+    deleteSongRequests: async function(storeID, _id) {
         await musicList.deleteOne(
             {
                 'storeID': storeID,
-                'postID': postID
+                '_id': _id
             });
         },
 
