@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Sessions = require('../models/schemas/session');
 const freeBoard = require('./schemas/Board/freeBoard/freeBoard');
+const freeBoardComment = require('./schemas/Board/freeBoard/freeBoardComment');
+const freeBoardReComment = require('./schemas/Board/freeBoard/freeBoardReComment');
 const crypto = require('crypto');
 
 const checkReqSessionID = function(req) {
@@ -60,10 +62,32 @@ const findUserInFreeBoardWithEmail = async function(req) {
         if (!email || !storeID || !postID) {
             throw new Error('클라이언트에 충분한 정보가 없음');
         }
-        let result = await freeBoard.findOne({
-            'storeID': storeID,
-            '_id': postID
-        }).exec();
+        console.log(req.params.commentID)
+        console.log(typeof(req.params.commentID))
+        console.log(req.params.recommentID)
+        console.log(typeof(req.params.recommentID))
+        if (req.params.recommentID !== undefined) {
+            let recommentID = req.params.recommentID;
+            var result = await freeBoardReComment.findOne({
+                'storeID': storeID,
+                'postID': postID,
+                '_id': recommentID
+            }).exec();
+        } else if (req.params.commentID !== undefined && req.params.recommentID == undefined) {
+            let commentID = req.params.commentID;
+            var result = await freeBoardComment.findOne({
+                'storeID': storeID,
+                'postID': postID,
+                '_id': commentID
+            }).exec();
+        } else if (req.params.commentID == undefined && req.params.recommentID == undefined) {
+            var result = await freeBoard.findOne({
+                'storeID': storeID,
+                '_id': postID
+            }).exec();
+        }
+        console.log('result is')
+        console.log(result)
         if (!result) {
             throw new Error('freeBoard에 클라이언트의 email, storeID, postID와 일치하는 게시물이 없음');
         } else if (result.email == email && result.email !== undefined && email!== undefined) {
@@ -72,6 +96,7 @@ const findUserInFreeBoardWithEmail = async function(req) {
             throw new Error('게시글의 작성자와 요청자의 email이 다르거나 undefined가 있음');
         }
     } catch (e) {
+        console.log(e)
         return;
     }
 }
@@ -147,7 +172,7 @@ module.exports = {
                 console.log('You are not loggined.');
                 req.session.destroy();
                 res.clearCookie('connect.sid');
-                res.redirect('/');
+                res.redirect(req.url);
                 return;
             }
             if (reqSessionID == result.sessionServerSessionID && reqSessionID !== undefined && result.sessionServerSessionID !== undefined ) {
@@ -202,8 +227,7 @@ module.exports = {
             let result = await findUserInFreeBoardWithEmail(req);
             if (reqUserEmail !== result) {
                 console.log('You are not the author of this one.');
-                console.log(req.session.back)
-                res.redirect('back');
+                res.redirect('/');
                 return;
             }
             if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
@@ -212,14 +236,14 @@ module.exports = {
                 next();
             } else {
                 console.log('You are not the author of this one.');
-                res.redirect('back');
+                res.redirect('/');
                 return;
             }
         }
         catch (e) {
             console.log('You are not the author of this one.');
             console.log(e);
-            res.redirect('back');
+            res.redirect('/');
             return;
         }
     },

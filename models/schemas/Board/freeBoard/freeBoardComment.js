@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
 const connectionBoards = mongoose.createConnection(process.env.boardServer);
+const { Schema } = mongoose;
 
 const freeBoardCommentContents = new Schema({
     contents: {
@@ -18,13 +18,14 @@ const freeBoardCommentContents = new Schema({
 
 
 const freeBoardComment = new Schema({
+    _id: mongoose.Types.ObjectId,
     storeID: {
         type: String,
         required: true,
     },
-    post: {
-        type: Schema.Types.ObjectId,
-        ref: 'freeBoard',
+    postID: {
+        type: mongoose.Types.ObjectId,
+        ref: 'FreeBoard',
     },
     email: {
         type: String,
@@ -34,14 +35,14 @@ const freeBoardComment = new Schema({
         type: freeBoardCommentContents,
         default: {}
     },
-    recomments: {
-        type: Schema.Types.ObjectId,
-        ref: 'freeBoardReComment',
-    },
+    recomments: [{
+        type: mongoose.Types.ObjectId,
+        ref: 'FreeBoardReComment',
+    }],
     heart: {
         type: Array,
     },
 },
 );
 
-module.exports = connectionBoards.model('freeBoardComment', freeBoardComment);
+module.exports = connectionBoards.model('FreeBoardComment', freeBoardComment);

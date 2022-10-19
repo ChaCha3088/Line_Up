@@ -1,0 +1,14 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+commentID+'/recomments/'+recommentID+'/modify' method="POST")
+        p
+            input(placeholder="내용", name="contents", value=result.contents.contents, type="text", required)
+        p
+            input(type="submit", value="수정")

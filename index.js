@@ -12,6 +12,9 @@ const session = require('express-session');
 const app = express();
 const userModel = require('./models/user');
 const infoModel = require('./models/info');
+const freeBoard = require('./models/schemas/Board/freeBoard/freeBoard');
+const freeBoardComment = require('./models/schemas/Board/freeBoard/freeBoardComment');
+const freeBoardReComment = require('./models/schemas/Board/freeBoard/freeBoardReComment');
 const uuid = require('uuid');
 
 
