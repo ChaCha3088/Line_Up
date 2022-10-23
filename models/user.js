@@ -4,6 +4,7 @@ const freeBoard = require('./schemas/Board/freeBoard/freeBoard');
 const freeBoardComment = require('./schemas/Board/freeBoard/freeBoardComment');
 const freeBoardReComment = require('./schemas/Board/freeBoard/freeBoardReComment');
 const crypto = require('crypto');
+const musicList = require('./schemas/Board/musicList');
 
 const checkReqSessionID = function(req) {
     try {
@@ -62,10 +63,6 @@ const findUserInFreeBoardWithEmail = async function(req) {
         if (!email || !storeID || !postID) {
             throw new Error('클라이언트에 충분한 정보가 없음');
         }
-        console.log(req.params.commentID)
-        console.log(typeof(req.params.commentID))
-        console.log(req.params.recommentID)
-        console.log(typeof(req.params.recommentID))
         if (req.params.recommentID !== undefined) {
             let recommentID = req.params.recommentID;
             var result = await freeBoardReComment.findOne({
@@ -86,10 +83,12 @@ const findUserInFreeBoardWithEmail = async function(req) {
                 '_id': postID
             }).exec();
         }
-        console.log('result is')
-        console.log(result)
         if (!result) {
             throw new Error('freeBoard에 클라이언트의 email, storeID, postID와 일치하는 게시물이 없음');
+        } else if (req.user.hasOwnProperty('admin')) {
+            if (req.user.admin === true) {
+                return result.email;
+            }
         } else if (result.email == email && result.email !== undefined && email!== undefined) {
             return result.email;
         } else {
@@ -101,11 +100,41 @@ const findUserInFreeBoardWithEmail = async function(req) {
     }
 }
 
+    const findUserInMusicListWithEmail = async function(req) {
+        try {
+            let storeID = String(req.params.storeID);
+            let postID = String(req.params.postID);
+            let email = req.user.email;
+            if (!email || !storeID || !postID) {
+                throw new Error('클라이언트에 충분한 정보가 없음');
+            }
+            let result = await musicList.findOne({
+                    'storeID': storeID,
+                    '_id': postID
+                }).exec();
+            if (!result) {
+                throw new Error('freeBoard에 클라이언트의 email, storeID, postID와 일치하는 게시물이 없음');
+            } else if (req.user.hasOwnProperty('admin')) {
+                if (req.user.admin === true) {
+                    return result.email;
+                }
+            } else if (result.email == email && result.email !== undefined && email!== undefined) {
+                return result.email;
+            } else {
+                throw new Error('게시글의 작성자와 요청자의 email이 다르거나 undefined가 있음');
+            }
+        } catch (e) {
+            console.log(e)
+            return;
+        }
+}
+
 module.exports = {
     checkReqSessionID: checkReqSessionID,
     checkReqUserEmail: checkReqUserEmail,
     findUserInSessionsWithSessionID: findUserInSessionsWithSessionID,
     findUserInFreeBoardWithEmail: findUserInFreeBoardWithEmail,
+    findUserInMusicListWithEmail: findUserInMusicListWithEmail,
 
     // 사용자가 입력한 패스워드를 해쉬로 만들어서 비교하여 해당 패스워드가 맞는지 확인하는 함수
     validPassword: function(password, hash, salt) {
@@ -172,7 +201,7 @@ module.exports = {
                 console.log('You are not loggined.');
                 req.session.destroy();
                 res.clearCookie('connect.sid');
-                res.redirect(req.url);
+                res.redirect('/');
                 return;
             }
             if (reqSessionID == result.sessionServerSessionID && reqSessionID !== undefined && result.sessionServerSessionID !== undefined ) {
@@ -221,19 +250,49 @@ module.exports = {
         }
     },
 
-    authorCheckMiddleware: async function(req, res, next) {
+    freeBoardAuthorCheckMiddleware: async function(req, res, next) {
         try {
             let reqUserEmail = checkReqUserEmail(req);
             let result = await findUserInFreeBoardWithEmail(req);
-            if (reqUserEmail !== result) {
+            if (req.user.hasOwnProperty('admin')) {
+                if (req.user.admin === true) {
+                    next();
+                    return;
+                }
+            } else if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
+                console.log(`You are ${result}`);
+                console.log(`You are good to go!`);
+                next();
+                return;
+            } else {
                 console.log('You are not the author of this one.');
                 res.redirect('/');
                 return;
             }
-            if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
+        }
+        catch (e) {
+            console.log('You are not the author of this one.');
+            console.log(e);
+            res.redirect('/');
+            return;
+        }
+    },
+
+    musicListAuthorCheckMiddleware: async function(req, res, next) {
+        try {
+            let reqUserEmail = checkReqUserEmail(req);
+            let result = await findUserInMusicListWithEmail(req);
+
+            if (req.user.hasOwnProperty('admin')) {
+                if (req.user.admin === true) {
+                    next();
+                    return;
+                }
+            } else if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
                 console.log(`You are ${result}`);
                 console.log(`You are good to go!`);
                 next();
+                return;
             } else {
                 console.log('You are not the author of this one.');
                 res.redirect('/');

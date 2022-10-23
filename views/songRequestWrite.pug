@@ -1,0 +1,16 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    form(action=env.URL+'/stores/'+storeID+'/songRequests/write' method="POST")
+        p
+            input(placeholder="아티스트", name="artist", type="text", required)
+        p
+            input(placeholder="제목", name="title", type="text", required)
+        p
+            input(type="submit", value="작성")

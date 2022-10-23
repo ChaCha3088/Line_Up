@@ -1,0 +1,25 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    div
+        a(href=env.URL+`/stores/${storeID}/tables/${tableNumber}/menus`) 메뉴판 보기
+        //반복문
+        //result.orders에 있는거 반복문으로 꺼내기
+        h1 주문한 메뉴
+        if result.orders !== undefined
+            each i in result.orders
+                p #{i.name}: #{i.price} X #{i.count}
+        
+            //합계 금액
+            //result.orderSum
+            p 합계 #{sum}원
+
+            //주문 총 갯수
+            //result.orderCounts
+            p 수량 #{allCount}개

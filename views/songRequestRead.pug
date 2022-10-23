@@ -1,0 +1,33 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    div
+        article
+            div
+                h3 #{result.email}
+
+                - createdPostTime = new Date(result.createdAt).toLocaleString();
+                if result.createdAt == result.updatedAt
+                    time 작성: #{createdPostTime}
+                else
+                    - updatedPostTime = new Date(result.updatedAt).toLocaleString();
+                    time 작성: #{createdPostTime} 수정: #{updatedPostTime}
+
+                if result.email == req.user.email || req.user.admin === true
+                    a(href=env.URL+'/stores/'+storeID+'/songRequests/posts/'+postID+'/modifyPage') 수정
+                    a(href=env.URL+'/stores/'+storeID+'/songRequests/posts/'+postID+'/delete') 삭제
+
+                h2 #{result.title}
+                ul 
+                    if result.heart !== undefined
+                        form(action=env.URL+'/stores/'+storeID+'/songRequests/posts/'+postID+'/hearts' method='POST')
+                            button(type='submit' formmethod='POST') 좋아요! #{Object.keys(result.heart).length}
+                    else
+                        form(action=env.URL+'/stores/'+storeID+'/songRequests/posts/'+postID+'/hearts' method='POST')
+                            button(type='submit' formmethod='POST') 좋아요! 0

@@ -1,12 +1,9 @@
 const mongoose = require('mongoose');
+const connectionBoards = mongoose.createConnection(process.env.boardServer);
 const { Schema } = mongoose;
 const musicList = new Schema({
     storeID: {
         type: String,
-        required: true
-    },
-    postID: {
-        type: mongoose.Schema.Types.ObjectId,
         required: true
     },
     email: {
@@ -22,10 +19,10 @@ const musicList = new Schema({
         required: true
     },
     heart: {
-        email: String,
+        type: Array,
     },
 },
 { timestamps: true },
 );
 
-module.exports = mongoose.model('musicList', musicList);
+module.exports = connectionBoards.model('musicList', musicList);

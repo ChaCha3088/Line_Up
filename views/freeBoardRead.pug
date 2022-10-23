@@ -19,7 +19,7 @@ body
                     - updatedPostTime = new Date(result.contents.updatedAt).toLocaleString();
                     time 작성: #{createdPostTime} 수정: #{updatedPostTime}
 
-                if result.email == req.user.email
+                if result.email == req.user.email || req.user.admin === true
                     a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/modifyPage') 수정
                     a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/delete') 삭제
 
@@ -54,7 +54,7 @@ body
                                 - updatedCommentTime = new Date(c.contents.updatedAt).toLocaleString();
                                 time 작성: #{createdCommentTime} 수정: #{updatedCommentTime}
                                 
-                            if c.email == req.user.email
+                            if c.email == req.user.email || req.user.admin === true
                                 a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/modifyPage') 수정
                                 a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/delete') 삭제
 
@@ -73,6 +73,8 @@ body
                             form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/write' method="POST")
                                 p
                                     input(placeholder="대댓글을 입력하세요.", name="recomment", type="text", required)
+                                p
+                                    input(type="submit", value="작성")
                         else 
                             p 댓글이 삭제되었습니다.
 
@@ -90,7 +92,7 @@ body
                                         - updatedReCommentTime = new Date(d.contents.updatedAt).toLocaleString();
                                         time 작성: #{createdReCommentTime} 수정: #{updatedReCommentTime}
                                         
-                                    if d.email == req.user.email
+                                    if d.email == req.user.email || req.user.admin === true
                                         a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/recomments/'+d._id+'/modifyPage') 수정
                                         a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/recomments/'+d._id+'/delete') 삭제
 
@@ -111,3 +113,5 @@ body
         form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/write' method="POST")
             p
                 input(placeholder="댓글을 입력하세요.", name="comment", type="text", required)
+            p
+                input(type="submit", value="작성")

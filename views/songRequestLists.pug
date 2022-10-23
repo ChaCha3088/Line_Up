@@ -1,0 +1,33 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    a(href=env.URL+'/stores/'+storeID+'/songRequests/write') 신청곡 작성하기
+
+    ul
+        each i in songRequestListResult
+            article
+                a(href=env.URL+'/stores/'+storeID+'/songRequests/posts/'+i._id)
+                    h3 #{i.email}
+                    - createdTime = new Date(i.createdAt).toLocaleString();
+                    time 작성: #{createdTime}
+                    h2 #{i.title}
+                    ul  
+                        if i.heart !== undefined
+                            li 좋아요: #{Object.keys(i.heart).length}
+                        else
+                            li 좋아요: 0
+    
+    if Number(pages) > 1
+        form(action=`${env.URL}/stores/${storeID}/songRequests/pages/${Number(pages)-1}` method="GET")
+            p
+                input(type="submit", value="이전 페이지")
+
+    form(action=`${env.URL}/stores/${storeID}/songRequests/pages/${Number(pages)+1}` method="GET")
+        p
+            input(type="submit", value="다음 페이지")

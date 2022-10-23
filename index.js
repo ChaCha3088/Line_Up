@@ -1,20 +1,17 @@
 const path = require('path');
 require("dotenv").config({path: path.join(__dirname, '/.env')});
 const express = require("express");
-const listRouter = require('./routes/lists');
-const ticketsRouter = require('./routes/tickets');
-const storesRouter = require('./routes/stores');
 const passport = require('passport');
 const passportConfig = require("./passport");
-const authRouter = require('./routes/auth');
 const MongoStore = require('connect-mongo');
 const session = require('express-session');
 const app = express();
+const ticketsRouter = require('./routes/tickets');
+const storesRouter = require('./routes/stores');
+const authRouter = require('./routes/auth');
+const adminRouter = require('./routes/admin')
 const userModel = require('./models/user');
 const infoModel = require('./models/info');
-const freeBoard = require('./models/schemas/Board/freeBoard/freeBoard');
-const freeBoardComment = require('./models/schemas/Board/freeBoard/freeBoardComment');
-const freeBoardReComment = require('./models/schemas/Board/freeBoard/freeBoardReComment');
 const uuid = require('uuid');
 
 
@@ -49,7 +46,7 @@ passportConfig();
 app.use('/auth', authRouter);
 app.use("/stores", storesRouter);
 app.use("/tickets", ticketsRouter);
-app.use("/lists", listRouter);
+app.use('/admin', adminRouter);
 
 app.get('/', async (req, res) => {
     let loginResult = await userModel.isLogIned(req, res);

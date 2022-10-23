@@ -1,0 +1,20 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    div
+        if
+            article
+            //사진, 이름
+            갯수 count로 같이 보내자
+            //버튼에 /stores/:storeID/tables/:tableNumber/menus/:menuName/으로 Post 요청 보낼거임
+            form(action=env.URL+`/stores/${storeID}/tables/${tableNumber}/menus/${menuName}` method="POST")
+                p
+                    input(placeholder="수량을 입력하세요.", name="count", type="number", required)
+                p
+                    input(type="submit", value="완료")

@@ -12,9 +12,18 @@ const UserSchema = new Schema({
         required: true,
         unique: true,
     },
-    salt: String,
-    hash: String,
-    admin: String,
+    salt: {
+        type: String,
+        required: true,
+    },
+    hash: {
+        type: String,
+        required: true,
+    },
+    admin: {
+        type: Boolean,
+    },
+    tableNumber: Number,
 }, {
         timestamps: true,
 });

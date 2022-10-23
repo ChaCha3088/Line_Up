@@ -29,3 +29,12 @@ body
                             li 댓글: #{Object.keys(i.comments).length}
                         else if i.comments !== undefined && i.recomments !== undefined
                             li 댓글: #{Object.keys(i.comments).length + Object.keys(i.recomments).length}
+    
+    if Number(pages) > 1
+        form(action=`${env.URL}/stores/${storeID}/freeBoards/pages/${Number(pages)-1}` method="GET")
+            p
+                input(type="submit", value="이전 페이지")
+
+    form(action=`${env.URL}/stores/${storeID}/freeBoards/pages/${Number(pages)+1}` method="GET")
+        p
+            input(type="submit", value="다음 페이지")
