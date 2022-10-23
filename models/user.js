@@ -85,10 +85,6 @@ const findUserInFreeBoardWithEmail = async function(req) {
         }
         if (!result) {
             throw new Error('freeBoard에 클라이언트의 email, storeID, postID와 일치하는 게시물이 없음');
-        } else if (req.user.hasOwnProperty('admin')) {
-            if (req.user.admin === true) {
-                return result.email;
-            }
         } else if (result.email == email && result.email !== undefined && email!== undefined) {
             return result.email;
         } else {
@@ -114,10 +110,6 @@ const findUserInFreeBoardWithEmail = async function(req) {
                 }).exec();
             if (!result) {
                 throw new Error('freeBoard에 클라이언트의 email, storeID, postID와 일치하는 게시물이 없음');
-            } else if (req.user.hasOwnProperty('admin')) {
-                if (req.user.admin === true) {
-                    return result.email;
-                }
             } else if (result.email == email && result.email !== undefined && email!== undefined) {
                 return result.email;
             } else {
@@ -253,12 +245,12 @@ module.exports = {
     freeBoardAuthorCheckMiddleware: async function(req, res, next) {
         try {
             let reqUserEmail = checkReqUserEmail(req);
-            let result = await findUserInFreeBoardWithEmail(req);
             if (req.user.hasOwnProperty('admin')) {
                 if (req.user.admin === true) {
                     next();
                     return;
                 }
+            let result = await findUserInFreeBoardWithEmail(req);
             } else if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
                 console.log(`You are ${result}`);
                 console.log(`You are good to go!`);
@@ -281,13 +273,12 @@ module.exports = {
     musicListAuthorCheckMiddleware: async function(req, res, next) {
         try {
             let reqUserEmail = checkReqUserEmail(req);
-            let result = await findUserInMusicListWithEmail(req);
-
             if (req.user.hasOwnProperty('admin')) {
                 if (req.user.admin === true) {
                     next();
                     return;
                 }
+            let result = await findUserInMusicListWithEmail(req);
             } else if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
                 console.log(`You are ${result}`);
                 console.log(`You are good to go!`);
