@@ -209,15 +209,18 @@ module.exports = {
                     'storeID': storeID,
                     'postID': postID
                 }).exec();
-                if (deleteUserHistoryResult == null) {
-                    throw new Error('Deleting Populated FreeBoardPost Failed!')
-                }
+            if (deleteUserHistoryResult == null) {
+                throw new Error('Deleting Populated FreeBoardPost Failed!')
+            }
             var deleteFreeBoardPostResult = await FreeBoard.findOneAndDelete(
                 {
                     'storeID': storeID,
                     '_id': postID
                 })
                 .exec();
+            if (deleteFreeBoardPostResult == null) {
+                throw new Error('Deleting FreeBoardPost Failed!')
+            }
             var deleteUserHistoryResult = await UserHistory.findOneAndUpdate(
                 {
                 'userName': req.user.userName,
@@ -227,9 +230,6 @@ module.exports = {
                     'posts': mongoose.Types.ObjectId(deleteFreeBoardPostResult._id)
                 }
             });
-            if (deleteFreeBoardPostResult == null) {
-                throw new Error('Deleting FreeBoardPost Failed!')
-            }
         } catch (e) {
             console.log(e)
             return false;
@@ -356,7 +356,6 @@ module.exports = {
     },
     deleteFreeBoardComment: async function(storeID, postID, commentID, req) {
         try {
-            
             var deleteFreeBoardCommentResult = await FreeBoardComment.findOneAndUpdate(
                 {
                     'storeID': storeID,
@@ -369,6 +368,9 @@ module.exports = {
                         'isdeleted': true
                     }
                 });
+            if (deleteFreeBoardCommentResult == null) {
+            throw new Error('Deleting FreeBoardComment Failed!')
+            }
             var deleteUserHistoryResult = await UserHistory.findOneAndUpdate({
                 'userName': req.user.userName,
                 'email': req.user.email
@@ -377,9 +379,6 @@ module.exports = {
                     'comments': mongoose.Types.ObjectId(deleteFreeBoardCommentResult._id)
                 }
             });
-            if (deleteFreeBoardCommentResult == null) {
-            throw new Error('Deleting FreeBoardComment Failed!')
-            }
             if (deleteUserHistoryResult == null) {
                 throw new Error('Deleting Populated FreeBoardComment Failed!')
             }
@@ -470,40 +469,62 @@ module.exports = {
             }
         },
     updateFreeBoardReComment: async function(storeID, postID, commentID, recommentID, req) {
-        await FreeBoardReComment.findOneAndUpdate(
-            {
-                'storeID': storeID,
-                'postID': postID,
-                'commentID': commentID,
-                '_id': recommentID,
-            },
-            {
-                'contents': {
-                    'contents': req.body.contents,
-            }})
+        try {
+            let result = await FreeBoardReComment.findOneAndUpdate(
+                {
+                    'storeID': storeID,
+                    'postID': postID,
+                    'commentID': commentID,
+                    '_id': recommentID,
+                },
+                {
+                    'contents': {
+                        'contents': req.body.contents,
+                }});
+            if (result == null) {
+                throw new Error('Updating FreeBoardReComment Failed!')
+            }
+            return ;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
         },
     deleteFreeBoardReComment: async function(storeID, postID, commentID, recommentID, req) {
-        await UserHistory.findOneAndUpdate({
-            'userName': req.user.userName,
-            'email': req.user.email
-        }, {
-            $pull: {
-                'recomments': mongoose.Types.ObjectId(result._id)
+        try {
+            
+            var deleteFreeBoardReCommentResult = await FreeBoardReComment.findOneAndUpdate(
+                {
+                    'storeID': storeID,
+                    'postID': postID,
+                    'commentID': commentID,
+                    '_id': recommentID,
+                },
+                {
+                    'contents': {
+                        'contents': '',
+                        'isdeleted': true
+                    }
+                });
+            if (deleteFreeBoardReCommentResult == null) {
+                throw new Error('Deleting FreeBoardReComment Failed!')
             }
-        });
-        var result = await FreeBoardReComment.findOneAndUpdate(
-            {
-                'storeID': storeID,
-                'postID': postID,
-                'commentID': commentID,
-                '_id': recommentID,
-            },
-            {
-                'contents': {
-                    'contents': '',
-                    'isdeleted': true
+            let deletePopulatedFreeBoardReCommentResult = await UserHistory.findOneAndUpdate({
+                'userName': req.user.userName,
+                'email': req.user.email
+            }, {
+                $pull: {
+                    'recomments': mongoose.Types.ObjectId(deleteFreeBoardReCommentResult._id)
                 }
             });
+            if (deletePopulatedFreeBoardReCommentResult) {
+                throw new Error('Deleting PopulatedFreeBoardReComment Failed!')
+            }
+            return;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
         },
 
 
@@ -602,7 +623,7 @@ module.exports = {
                 orderArray.push(i.name);
             }
             var foundTableOrder = resultTableOrder.orders.find(e => e.name === `${menuName}`)
-            if (orderArray.includes(menuName) == true ) {
+            if (orderArray.includes(menuName) == true) {
                 console.log('add count')
                 var beforeCount = Number(foundTableOrder.count);
                 var result = await order.findOneAndUpdate(
@@ -621,29 +642,29 @@ module.exports = {
                     }).exec();
                 console.log(result)
                 return;
-                } else {
-                    console.log('add new order')
-                    var result = await order.findOneAndUpdate(
-                        {
-                            'storeID': storeID,
-                            'tableNumber': tableNumber,
-                            'leaderEmail': req.user.email,
-                        },
-                        {
-                            $push: {
-                                'orders': {
-                                    'name': menuName,
-                                    'price': result.result[`${menuName}`],
-                                    'count': Number(req.body.count)
-                                }
+            } else if(orderArray.includes(menuName) == false) {
+                console.log('add new order')
+                var result = await order.findOneAndUpdate(
+                    {
+                        'storeID': storeID,
+                        'tableNumber': tableNumber,
+                        'leaderEmail': req.user.email,
+                    },
+                    {
+                        $push: {
+                            'orders': {
+                                'name': menuName,
+                                'price': result.result[`${menuName}`],
+                                'count': Number(req.body.count)
                             }
                         }
-                    );
-                    console.log(result)
-                    return;
-                }
+                    }
+                );
+                return;
+            }
         } catch (e) {
             console.log(e)
+            return false;
         }
     },
     deleteNewDish: async function(storeID, tableNumber, menuName, req) {
