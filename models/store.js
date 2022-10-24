@@ -199,25 +199,25 @@ module.exports = {
     },
     deleteFreeBoardPost: async function(storeID, postID, req) {
         try {
+            await FreeBoardReComment.deleteMany(
+                {
+                    'storeID': storeID,
+                    'postID': postID
+                }).exec();
+            await FreeBoardComment.deleteMany(
+                {
+                    'storeID': storeID,
+                    'postID': postID
+                }).exec();
+                if (deleteUserHistoryResult == null) {
+                    throw new Error('Deleting Populated FreeBoardPost Failed!')
+                }
             var deleteFreeBoardPostResult = await FreeBoard.findOneAndDelete(
                 {
                     'storeID': storeID,
                     '_id': postID
                 })
                 .exec();
-            if (deleteFreeBoardPostResult == null) {
-                throw new Error('Devaring FreeBoardPost Failed!')
-            }
-            await FreeBoardComment.deleteMany(
-                {
-                    'storeID': storeID,
-                    'postID': postID
-                }).exec();
-            await FreeBoardReComment.deleteMany(
-                {
-                    'storeID': storeID,
-                    'postID': postID
-                }).exec();
             var deleteUserHistoryResult = await UserHistory.findOneAndUpdate(
                 {
                 'userName': req.user.userName,
@@ -227,8 +227,8 @@ module.exports = {
                     'posts': mongoose.Types.ObjectId(deleteFreeBoardPostResult._id)
                 }
             });
-            if (deleteUserHistoryResult == null) {
-                throw new Error('Devaring Populated FreeBoardPost Failed!')
+            if (deleteFreeBoardPostResult == null) {
+                throw new Error('Deleting FreeBoardPost Failed!')
             }
         } catch (e) {
             console.log(e)
@@ -356,6 +356,7 @@ module.exports = {
     },
     deleteFreeBoardComment: async function(storeID, postID, commentID, req) {
         try {
+            
             var deleteFreeBoardCommentResult = await FreeBoardComment.findOneAndUpdate(
                 {
                     'storeID': storeID,
@@ -368,9 +369,6 @@ module.exports = {
                         'isdeleted': true
                     }
                 });
-            if (deleteFreeBoardCommentResult == null) {
-                throw new Error('Devaring FreeBoardComment Failed!')
-            }
             var deleteUserHistoryResult = await UserHistory.findOneAndUpdate({
                 'userName': req.user.userName,
                 'email': req.user.email
@@ -379,8 +377,11 @@ module.exports = {
                     'comments': mongoose.Types.ObjectId(deleteFreeBoardCommentResult._id)
                 }
             });
+            if (deleteFreeBoardCommentResult == null) {
+            throw new Error('Deleting FreeBoardComment Failed!')
+            }
             if (deleteUserHistoryResult == null) {
-                throw new Error('Devaring Populated FreeBoardComment Failed!')
+                throw new Error('Deleting Populated FreeBoardComment Failed!')
             }
         } catch (e) {
             console.log(e)
@@ -482,6 +483,14 @@ module.exports = {
             }})
         },
     deleteFreeBoardReComment: async function(storeID, postID, commentID, recommentID, req) {
+        await UserHistory.findOneAndUpdate({
+            'userName': req.user.userName,
+            'email': req.user.email
+        }, {
+            $pull: {
+                'recomments': mongoose.Types.ObjectId(result._id)
+            }
+        });
         var result = await FreeBoardReComment.findOneAndUpdate(
             {
                 'storeID': storeID,
@@ -495,14 +504,6 @@ module.exports = {
                     'isdeleted': true
                 }
             });
-        await UserHistory.findOneAndUpdate({
-            'userName': req.user.userName,
-            'email': req.user.email
-        }, {
-            $pull: {
-                'recomments': mongoose.Types.ObjectId(result._id)
-            }
-        });
         },
 
 
