@@ -69,19 +69,13 @@ app.get('/', async (req, res) => {
 
 app.use((req, res, next) => {
     res.status(404);
-    res.send({
-        result: 'fail',
-        error: `Page not found ${req.path}`
-    });
+    res.redirect('/')
 });
 
 app.use((err, req, res, next) => {
     res.status(500);
-
-    res.json({
-        result: 'fail',
-        error: err.message,
-    });
+    console.log(err)
+    res.redirect('/')
 });
 
 const PORT = process.env.port;

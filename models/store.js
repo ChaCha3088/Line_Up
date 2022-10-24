@@ -549,21 +549,14 @@ module.exports = {
         for (i = 1; i <= result.maxTable; i++) {
             maxTableArray.push(i);
         }
-        if (resultArray.length >= 1) {
+        if (Array.isArray(resultArray) && resultArray.length >= 1) {
             var availableTableArray = maxTableArray.filter(x => !resultArray.includes(x)).sort(function(a, b) {
                 return a - b;
             });
             var availableTables = availableTableArray
-        } else {
+        } else if (Array.isArray(resultArray) && resultArray.length == 0) {
             var availableTables = maxTableArray;
         }
-                
-        //result.maxTable의 개수만큼을 리스트로 만들어서
-        //[1,2,3,4,5,6,7,8]
-        //차집합을 넘겨줄까?
-
-        //프엔// each i in result.tableLists.tableNumber
-        //프엔//    i
         return {
             maxTable: result.maxTable,
             availableTables: availableTables
