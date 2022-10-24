@@ -624,7 +624,6 @@ module.exports = {
             }
             var foundTableOrder = resultTableOrder.orders.find(e => e.name === `${menuName}`)
             if (orderArray.includes(menuName) == true) {
-                console.log('add count')
                 var beforeCount = Number(foundTableOrder.count);
                 var result = await order.findOneAndUpdate(
                     {
@@ -640,10 +639,8 @@ module.exports = {
                             'orders.$.count': beforeCount + Number(req.body.count)
                         }
                     }).exec();
-                console.log(result)
                 return;
-            } else if(orderArray.includes(menuName) == false) {
-                console.log('add new order')
+            } else if (orderArray.includes(menuName) == false) {
                 var result = await order.findOneAndUpdate(
                     {
                         'storeID': storeID,
