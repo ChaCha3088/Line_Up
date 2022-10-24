@@ -685,11 +685,11 @@ module.exports = {
                     'tableNumber': req.params.tableNumber
                 }
             ).exec();
-            if (result !== null) {
-                res.redirect(`/stores/${req.params.storeID}/tableSelect`);
+            if (result == null) {
+                next();
                 return;
             } else {
-                next();
+                res.redirect(`/stores/${req.params.storeID}/tableSelect`);
                 return;
             }
         } catch (e) {
@@ -705,11 +705,12 @@ module.exports = {
                     'email': req.user.email
                 }
             ).exec();
-            if (result.tableNumber !== undefined) {
-                res.redirect('/');
+            if (result.tableNumber == undefined) {
+                next();
                 return;
             } else {
-                next();
+                res.redirect('/');
+                return;
             }
         } catch (e) {
             console.log(e);
@@ -724,10 +725,12 @@ module.exports = {
                     'email': req.user.email
                 }
             ).exec();
-            if (result.tableNumber == req.params.tableNumber) {
+            if (result.hasOwnProperty('admin')) {
                 next();
-            } else if (result.hasOwnProperty('admin')) {
+                return;
+            } else if (result.tableNumber == req.params.tableNumber) {
                 next();
+                return;
             } else {
                 res.redirect('/');
                 return;
