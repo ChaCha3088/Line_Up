@@ -23,11 +23,62 @@ const findKey = function (targetObj, key) {
     return Object.keys(targetObj).includes(key);
 }
 
+const calculateSumAndCount = function(result) {
+    let sum = 0;
+    let allCount = 0;
+    for (i of result.orders) {
+        sum = sum + parseInt(i.price) * parseInt(i.count)
+        allCount = allCount + parseInt(i.count)
+    }
+    return {
+        sum: sum,
+        allCount: allCount
+    }
+}
+
+const getAvailableTableLists = async function(storeID) {
+    var result = await storeInfo.findOne(
+        {
+            'storeID': storeID
+        })
+    .populate(
+        {
+            path: 'tableLists',
+            select: 'tableNumber',
+            model: order
+        });
+
+    var resultArray = [];
+    for (i of result.tableLists) {
+        resultArray.push(i.tableNumber);
+    }
+    var maxTableArray = [];
+    for (i = 1; i <= result.maxTable; i++) {
+        maxTableArray.push(i);
+    }
+    if (Array.isArray(resultArray) && resultArray.length >= 1) {
+        var availableTableArray = maxTableArray.filter(x => !resultArray.includes(x)).sort(function(a, b) {
+            return a - b;
+        });
+        var availableTables = availableTableArray
+    } else if (Array.isArray(resultArray) && resultArray.length == 0) {
+        var availableTables = maxTableArray;
+    }
+    let takenTables = resultArray
+    return {
+        maxTable: result.maxTable,
+        availableTables: availableTables,
+        takenTables: takenTables
+    }
+}
+
 
 
 module.exports = {
     findValue: findValue,
     findKey: findKey,
+    calculateSumAndCount: calculateSumAndCount,
+    getAvailableTableLists: getAvailableTableLists,
 
 
 
@@ -68,8 +119,8 @@ module.exports = {
                     options: {
                         sort: {
                             'contents.created_at': 1
-                        }
-            }}})
+                        }}
+                    }})
             .exec();
             return result;
         } catch (e) {
@@ -103,8 +154,8 @@ module.exports = {
                     options: {
                         sort: {
                             'contents.created_at': 1
-                        }
-            }}})
+                        }}
+                    }})
             .exec();
             if (result == null) {
                 throw new Error('Getting FreeBoardPost Failed!')
@@ -554,37 +605,34 @@ module.exports = {
 
 
 
-    getTableLists: async function(storeID) {
-        var result = await storeInfo.findOne(
-            {
-                'storeID': storeID
-            })
-        .populate(
-            {
-                path: 'tableLists',
-                select: 'tableNumber',
-                model: order
-            });
-
-        var resultArray = [];
-        for (i of result.tableLists) {
-            resultArray.push(i.tableNumber);
-        }
-        var maxTableArray = [];
-        for (i = 1; i <= result.maxTable; i++) {
-            maxTableArray.push(i);
-        }
-        if (Array.isArray(resultArray) && resultArray.length >= 1) {
-            var availableTableArray = maxTableArray.filter(x => !resultArray.includes(x)).sort(function(a, b) {
-                return a - b;
-            });
-            var availableTables = availableTableArray
-        } else if (Array.isArray(resultArray) && resultArray.length == 0) {
-            var availableTables = maxTableArray;
-        }
-        return {
-            maxTable: result.maxTable,
-            availableTables: availableTables
+    
+    getTableStatus: async function(storeID) {
+        try {
+            let result = await getAvailableTableLists(storeID)
+            var resultArray = []
+            for (i of result.takenTables) {
+                let result = await order.findOne(
+                    {
+                        'storeID': storeID,
+                        'tableNumber': i,
+                    }
+                ).exec();
+                if (result == null) {
+                    throw new Error('Finding Table Failed!')
+                }
+                let calculateResult = calculateSumAndCount(result)
+                resultArray.push(
+                    {
+                        'tableNumber': i,
+                        'sum': calculateResult.sum,
+                        'createdAt': result.createdAt
+                    });
+                }
+            console.log(resultArray)
+            return resultArray
+        } catch (e) {
+            console.log(e)
+            return false;
         }
     },
     getOrderLists: async function(storeID, tableNumber, req) {
@@ -597,8 +645,8 @@ module.exports = {
         ).exec();
         return result;
     },
+    /** 생성시 storeInfo와 userSchema에도 order._id가 입력됨 */
     postNewTable: async function(storeID, tableNumber, req) {
-        // 생성시 storeInfo와 userSchema에도 order._id가 입력됨
         var result = await order.create(
             {
                 '_id': mongoose.Types.ObjectId(),
@@ -682,7 +730,7 @@ module.exports = {
             return false;
         }
     },
-    deleteNewDish: async function(storeID, tableNumber, menuName, req) {
+    deleteDish: async function(storeID, tableNumber, menuName, req) {
 
     },
     menuValidationMiddleware: async function(req, res, next) {

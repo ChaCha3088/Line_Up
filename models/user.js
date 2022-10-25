@@ -242,6 +242,24 @@ module.exports = {
         }
     },
 
+    isAdminMiddleware: async function(req, res, next) {
+        try {
+            if (req.user.hasOwnProperty('admin') && req.user.admin === true) {
+                next();
+                return;
+                }
+            else {
+                console.log('You are not admin.');
+                res.redirect('/');
+                return;
+            }
+        } catch (e) {
+            console.log('You are not admin.');
+            res.redirect('/');
+            return;
+        }
+    },
+
     freeBoardAuthorCheckMiddleware: async function(req, res, next) {
         try {
             let reqUserEmail = checkReqUserEmail(req);

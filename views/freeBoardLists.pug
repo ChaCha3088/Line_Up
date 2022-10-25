@@ -23,12 +23,12 @@ body
                             li 좋아요: #{Object.keys(i.heart).length}
                         else
                             li 좋아요: 0
-                        if i.comments == undefined && i.recomments == undefined
+                        if i.comments == undefined && i.comments.recomments == undefined
                             li 댓글: 0
-                        else if i.comments !== undefined && i.recomments == undefined
+                        else if i.comments !== undefined && i.comments.recomments == undefined
                             li 댓글: #{Object.keys(i.comments).length}
-                        else if i.comments !== undefined && i.recomments !== undefined
-                            li 댓글: #{Object.keys(i.comments).length + Object.keys(i.recomments).length}
+                        else if i.comments !== undefined && i.comments.recomments !== undefined
+                            li 댓글: #{Object.keys(i.comments).length + Object.keys(i.comments.recomments).length}
     
     if Number(pages) > 1
         form(action=`${env.URL}/stores/${storeID}/freeBoards/pages/${Number(pages)-1}` method="GET")

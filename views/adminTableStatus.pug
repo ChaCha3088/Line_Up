@@ -1,0 +1,15 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    each i in result
+        p #{i.tableNumber}
+        p #{i.sum}
+        p #{i.createdAt}
+
+

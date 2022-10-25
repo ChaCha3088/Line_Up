@@ -449,7 +449,9 @@ router.post('/:storeID/songRequests/posts/:postID/modify', storeModel.validStore
         var storeID = String(req.params.storeID);
         var postID = String(req.params.postID);
         let result = await storeModel.updateSongRequestPost(storeID, postID, req);
-        if (result == false)
+        if (result == false) {
+            throw new Error('Updating SongRequestPost Failed!')
+        }
         res.redirect(`/stores/${storeID}/songRequests/posts/${postID}`);
     } catch (e) {
         res.redirect(`/stores/${storeID}/songRequests/pages/1`);
@@ -477,7 +479,7 @@ router.get('/:storeID/songRequests/posts/:postID/delete', storeModel.validStoreN
 //테이블 선택 페이지
 router.get("/:storeID/tableSelect", storeModel.validStoreName, userModel.logInCheckMiddleware, storeModel.userstableExistMiddleware, async (req, res, next) => {
     var storeID = String(req.params.storeID);
-    var result = await storeModel.getTableLists(storeID);
+    var result = await storeModel.getAvailableTableLists(storeID);
     var context = {
         pageTitle: '테이블 선택',
         storeID: storeID,
@@ -519,19 +521,14 @@ router.get("/:storeID/tables/:tableNumber", storeModel.validStoreName, userModel
         res.render('tableCurrentOrder', context);
         return;
     } else {
-        var sum = 0;
-        var allCount = 0;
-        for (i of result.orders) {  
-            sum = sum + parseInt(i.price) * parseInt(i.count)
-            allCount = allCount + parseInt(i.count)
-        }
+        let calculateResult = storeModel.calculateSumAndCount(result)
         var context = {
             pageTitle: '현재 주문',
             storeID: storeID,
             tableNumber: tableNumber,
             result: result,
-            sum: sum,
-            allCount: allCount
+            sum: calculateResult.sum,
+            allCount: calculateResult.allCount
         }
         res.render('tableCurrentOrder', context);
         return;
@@ -571,6 +568,27 @@ router.post("/:storeID/tables/:tableNumber/menus/:menuName", storeModel.validSto
     var menuName = String(req.params.menuName);
     await storeModel.postNewDish(storeID, tableNumber, menuName, req);
     res.redirect(`/stores/${storeID}/tables/${tableNumber}`);
+});
+
+
+
+//테이블 어드민 페이지
+router.get("/:storeID/admin/tableStatus", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, storeModel.tableLeaderMiddleware, async (req, res, next) => {
+    try {
+        var storeID = String(req.params.storeID);
+        let result = await storeModel.getTableStatus(storeID);
+        if (result == false) {
+            throw new Error('Getting Table Status Failed!')
+        }
+        let context = {
+            storeID: storeID,
+            result: result
+        }
+        res.render('adminTableStatus', context)
+    } catch (e) {
+        console.log(e)
+        res.redirect('/')
+    }
 });
 //테이블 메뉴 개수 수정 //admin만 가능한 Middleware
 
