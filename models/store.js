@@ -172,9 +172,9 @@ module.exports = {
                     throw new Error('Writing Heart on Post failed!')
                 }
                 return true;
-            } else {
-                return;
-            }} catch (e) {
+            }
+            return;
+        } catch (e) {
                 console.log(e);
                 return false;
             }
@@ -212,9 +212,6 @@ module.exports = {
                     'storeID': storeID,
                     'postID': postID
                 }).exec();
-            if (deleteUserHistoryResult == null) {
-                throw new Error('Deleting Populated FreeBoardPost Failed!')
-            }
             var deleteFreeBoardPostResult = await FreeBoard.findOneAndDelete(
                 {
                     'storeID': storeID,
@@ -226,13 +223,16 @@ module.exports = {
             }
             var deleteUserHistoryResult = await UserHistory.findOneAndUpdate(
                 {
-                'userName': req.user.userName,
-                'email': req.user.email,
-            }, {
-                $pull: {
-                    'posts': mongoose.Types.ObjectId(deleteFreeBoardPostResult._id)
-                }
-            });
+                    'userName': req.user.userName,
+                    'email': req.user.email,
+                }, {
+                    $pull: {
+                        'posts': mongoose.Types.ObjectId(deleteFreeBoardPostResult._id)
+                    }
+                });
+            if (deleteUserHistoryResult == null) {
+                throw new Error('Deleting Populated FreeBoardPost Failed!')
+            }
         } catch (e) {
             console.log(e)
             return false;
@@ -330,9 +330,9 @@ module.exports = {
                     throw new Error('Writing Heart on Comment failed!')
                 }
                 return true;
-            } else {
-                return;
-            }} catch (e) {
+            }
+            return;
+        } catch (e) {
                 console.log(e);
                 return false;
         }
@@ -479,12 +479,12 @@ module.exports = {
                     throw new Error('Writing Heart on ReComment Failed!')
                 }
                 return true;
-            } else {
-                return;
-            }} catch (e) {
-                console.log(e);
-                return false;
             }
+            return;
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
         },
     updateFreeBoardReComment: async function(storeID, postID, commentID, recommentID, req) {
         try {
@@ -510,24 +510,25 @@ module.exports = {
         },
     deleteFreeBoardReComment: async function(storeID, postID, commentID, recommentID, req) {
         try {
-            
-            var deleteFreeBoardReCommentResult = await FreeBoardReComment.findOneAndUpdate(
+            var deleteFreeBoardReCommentResult = await FreeBoardReComment.findOneAndDelete(
                 {
                     'storeID': storeID,
                     'postID': postID,
                     'commentID': commentID,
                     '_id': recommentID,
-                },
+                });
+            let deletePopulatedFreeBoardCommentResult = await FreeBoardReComment.findOneAndUpdate(
                 {
-                    'contents': {
-                        'contents': '',
-                        'isdeleted': true
+                    'storeID': storeID,
+                    'postID': postID,
+                    '_id': deleteFreeBoardReCommentResult.commentID,
+                }, {
+                    $pull: {
+                        'recomments': mongoose.Types.ObjectId(deleteFreeBoardReCommentResult._id)
                     }
                 });
-            if (deleteFreeBoardReCommentResult == null) {
-                throw new Error('Deleting FreeBoardReComment Failed!')
-            }
-            let deletePopulatedFreeBoardReCommentResult = await UserHistory.findOneAndUpdate({
+            let deletePopulatedFreeBoardReCommentResult = await UserHistory.findOneAndUpdate(
+                {
                 'userName': req.user.userName,
                 'email': req.user.email
             }, {
@@ -535,7 +536,13 @@ module.exports = {
                     'recomments': mongoose.Types.ObjectId(deleteFreeBoardReCommentResult._id)
                 }
             });
-            if (deletePopulatedFreeBoardReCommentResult) {
+            if (deleteFreeBoardReCommentResult == null) {
+                throw new Error('Deleting FreeBoardReComment Failed!')
+            }
+            if (deletePopulatedFreeBoardCommentResult == null) {
+                throw new Error('Deleting PopulatedFreeBoardComment Failed!')
+            }
+            if (deletePopulatedFreeBoardReCommentResult == null) {
                 throw new Error('Deleting PopulatedFreeBoardReComment Failed!')
             }
             return;
@@ -841,21 +848,24 @@ module.exports = {
             }
             var exist = findValue(result.heart, email);
             if (exist == false) {
-                await musicList.findOneAndUpdate({
+                let writingHeartOnSongRequestPost = await musicList.findOneAndUpdate({
                     'storeID': storeID,
                     '_id': postID
                 }, {
                     $push: {
                         'heart': email
                     }
-                });            
+                });
+                if (writingHeartOnSongRequestPost == null) {
+                    throw new Error('Writing Heart on SongRequest Failed!')
+                }       
                 return true;
-            } else {
-                return;
-            }} catch (e) {
-                console.log(e);
-                return false;
             }
+            return;
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
     },
     updateSongRequestPost: async function(storeID, postID, req) {
         try {

@@ -245,13 +245,12 @@ module.exports = {
     freeBoardAuthorCheckMiddleware: async function(req, res, next) {
         try {
             let reqUserEmail = checkReqUserEmail(req);
-            if (req.user.hasOwnProperty('admin')) {
-                if (req.user.admin === true) {
-                    next();
-                    return;
+            if (req.user.hasOwnProperty('admin') && req.user.admin === true) {
+                next();
+                return;
                 }
             let result = await findUserInFreeBoardWithEmail(req);
-            } else if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
+            if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
                 console.log(`You are ${result}`);
                 console.log(`You are good to go!`);
                 next();
@@ -260,9 +259,7 @@ module.exports = {
                 console.log('You are not the author of this one.');
                 res.redirect('/');
                 return;
-            }
-        }
-        catch (e) {
+            }} catch (e) {
             console.log('You are not the author of this one.');
             console.log(e);
             res.redirect('/');
@@ -273,13 +270,12 @@ module.exports = {
     musicListAuthorCheckMiddleware: async function(req, res, next) {
         try {
             let reqUserEmail = checkReqUserEmail(req);
-            if (req.user.hasOwnProperty('admin')) {
-                if (req.user.admin === true) {
-                    next();
-                    return;
+            if (req.user.hasOwnProperty('admin') && req.user.admin === true) {
+                next();
+                return;
                 }
             let result = await findUserInMusicListWithEmail(req);
-            } else if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
+            if (result == reqUserEmail && result !== undefined && reqUserEmail !== undefined) {
                 console.log(`You are ${result}`);
                 console.log(`You are good to go!`);
                 next();

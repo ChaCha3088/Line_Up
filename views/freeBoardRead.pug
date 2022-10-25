@@ -44,7 +44,7 @@ body
             each c in result.comments
                 article
                     div
-                        if c.contents.isDeleted !== true
+                        if c.contents.isDeleted == false
                             h3 #{c.email}
 
                             - createdCommentTime = new Date(c.contents.createdAt).toLocaleString();
@@ -75,7 +75,7 @@ body
                                     input(placeholder="대댓글을 입력하세요.", name="recomment", type="text", required)
                                 p
                                     input(type="submit", value="작성")
-                        else 
+                        else if c.contents.isDeleted == true
                             p 댓글이 삭제되었습니다.
 
                 if c.recomments !== null

@@ -132,7 +132,8 @@ router.post('/:storeID/freeBoards/posts/:postID/hearts', storeModel.validStoreNa
         var storeID = String(req.params.storeID);
         var postID = String(req.params.postID);
         var result = await storeModel.postFreeBoardPostHeart(storeID, postID, req);
-        if (result == true || undefined) {
+        console.log(result)
+        if (result == true || result == undefined) {
             res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
             return;
         } else if (result == false) {
@@ -198,7 +199,7 @@ router.post('/:storeID/freeBoards/posts/:postID/comments/:commentID/commentHeart
         var postID = String(req.params.postID);
         var commentID = String(req.params.commentID);
         var result = await storeModel.postFreeBoardCommentHeart(storeID, postID, commentID, req);
-        if (result == true || undefined) {
+        if (result == true || result == undefined) {
             res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
             return;
         }
@@ -284,7 +285,7 @@ router.post('/:storeID/freeBoards/posts/:postID/comments/:commentID/recomments/:
         var commentID = String(req.params.commentID);
         var recommentID = String(req.params.recommentID);
         let result = await storeModel.postFreeBoardReCommentHeart(storeID, postID, commentID, recommentID, req);
-        if (result == true || undefined) {
+        if (result == true || result == undefined) {
             res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
             return;
         } else if (result == false) {
@@ -433,7 +434,7 @@ router.post('/:storeID/songRequests/posts/:postID/hearts', storeModel.validStore
         var storeID = String(req.params.storeID);
         var postID = String(req.params.postID);
         let result = await storeModel.postSongRequestPostHeart(storeID, postID, req);
-        if (result == true || undefined) {
+        if (result == true || result == undefined) {
             res.redirect(`/stores/${storeID}/songRequests/posts/${postID}`);
         } else if (result == false) {
             throw new Error('Writing Heart on SongRequest Failed!')
