@@ -512,6 +512,11 @@ router.get("/:storeID/tables/:tableNumber", storeModel.validStoreName, userModel
     try {
         var storeID = String(req.params.storeID);
         var tableNumber = String(req.params.tableNumber);
+        if (req.user.hasOwnProperty('admin') && req.user.admin === true) {
+            var admin = true
+        } else {
+            var admin = false
+        }
         var result = await storeModel.getOrderLists(storeID, tableNumber, req);
         if (result == false) {
             throw new Error('There is no table!')
@@ -522,6 +527,7 @@ router.get("/:storeID/tables/:tableNumber", storeModel.validStoreName, userModel
                 storeID: storeID,
                 tableNumber: tableNumber,
                 result: result,
+                admin: admin
             }
             res.render('tableCurrentOrder', context);
             return;
@@ -533,7 +539,8 @@ router.get("/:storeID/tables/:tableNumber", storeModel.validStoreName, userModel
                 tableNumber: tableNumber,
                 result: result,
                 sum: calculateResult.sum,
-                allCount: calculateResult.allCount
+                allCount: calculateResult.allCount,
+                admin: admin
             }
             res.render('tableCurrentOrder', context);
             return;
@@ -581,6 +588,14 @@ router.post("/:storeID/tables/:tableNumber/menus/:menuName", storeModel.validSto
     await storeModel.postNewDish(storeID, tableNumber, menuName, req);
     res.redirect(`/stores/${storeID}/tables/${tableNumber}`);
 });
+//테이블 메뉴 수정 페이지 get 요청
+router.get("/:storeID/tables/:tableNumber/menus/:menuName/modifyPage",
+
+//테이블 메뉴 수정 post 요청
+router.post("/:storeID/tables/:tableNumber/menus/:menuName/modify",
+
+//테이블 메뉴 삭제 post 요청
+router.get("/:storeID/tables/:tableNumber/menus/:menuName/delete",
 
 
 

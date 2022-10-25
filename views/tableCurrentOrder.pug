@@ -15,7 +15,10 @@ body
         if result !== null
             each i in result.orders
                 p #{i.name}: #{i.price} X #{i.count}
-        
+                if admin === true
+                    a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/modify`) 수정
+                    a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/delete`) 삭제
+
             //합계 금액
             //result.orderSum
             p 합계 #{sum}원
