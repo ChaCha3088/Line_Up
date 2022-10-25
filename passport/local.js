@@ -66,7 +66,7 @@ module.exports = () => {
                 let query = { 'email': email };
                 let exUser = await UserSchema.findOne(query);
                 
-                if (!exUser) {
+                if (exUser == null) {
                     console.log('There is no exUser, Creating newUser');
                     let genedPassword = userModel.genPassword(pw);
                     await UserSchema.create({
@@ -83,7 +83,6 @@ module.exports = () => {
                             'email': email,
                         }
                     );
-                    console.log(userHistoryResult)
 
                     let newUser = {
                         'userName': req.body.userName,
@@ -93,9 +92,10 @@ module.exports = () => {
                     }
 
                     done(null, newUser);
-                } else {
+                } else if (exUser) {
                     throw Error('Your email is already in our database!');
                 }
+                done(null, false);
             } catch (e) {
                 console.error(e);
                 done(null, false);

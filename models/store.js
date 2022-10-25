@@ -610,20 +610,24 @@ module.exports = {
         try {
             let result = await getAvailableTableLists(storeID)
             var resultArray = []
-            for (i of result.takenTables) {
+            var iterationArray = result.takenTables
+
+            for (var i of iterationArray) {
                 let result = await order.findOne(
                     {
                         'storeID': storeID,
                         'tableNumber': i,
                     }
                 ).exec();
+
                 if (result == null) {
                     throw new Error('Finding Table Failed!')
                 }
                 let calculateResult = calculateSumAndCount(result)
+
                 resultArray.push(
                     {
-                        'tableNumber': i,
+                        'tableNumber': parseInt(i),
                         'sum': calculateResult.sum,
                         'createdAt': result.createdAt
                     });
