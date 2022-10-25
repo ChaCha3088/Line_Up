@@ -509,30 +509,42 @@ router.post("/:storeID/tableSelect/:tableNumber", storeModel.validStoreName, use
 
 //테이블 현재 주문 상태 페이지
 router.get("/:storeID/tables/:tableNumber", storeModel.validStoreName, userModel.logInCheckMiddleware, storeModel.tableLeaderMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var tableNumber = String(req.params.tableNumber);
-    var result = await storeModel.getOrderLists(storeID, tableNumber, req);
-    if (result.orders == null) {
-        var context = {
-            pageTitle: '현재 주문',
-            storeID: storeID,
-            tableNumber: tableNumber,
+    try {
+        var storeID = String(req.params.storeID);
+        var tableNumber = String(req.params.tableNumber);
+        var result = await storeModel.getOrderLists(storeID, tableNumber, req);
+        if (result == false) {
+            throw new Error('There is no table!')
         }
-        res.render('tableCurrentOrder', context);
-        return;
-    } else {
-        let calculateResult = storeModel.calculateSumAndCount(result)
-        var context = {
-            pageTitle: '현재 주문',
-            storeID: storeID,
-            tableNumber: tableNumber,
-            result: result,
-            sum: calculateResult.sum,
-            allCount: calculateResult.allCount
+        if (result.orders == undefined) {
+            var context = {
+                pageTitle: '현재 주문',
+                storeID: storeID,
+                tableNumber: tableNumber,
+                result: result,
+            }
+            res.render('tableCurrentOrder', context);
+            return;
+        } else if (result.orders !== undefined) {
+            let calculateResult = storeModel.calculateSumAndCount(result)
+            var context = {
+                pageTitle: '현재 주문',
+                storeID: storeID,
+                tableNumber: tableNumber,
+                result: result,
+                sum: calculateResult.sum,
+                allCount: calculateResult.allCount
+            }
+            res.render('tableCurrentOrder', context);
+            return;
+        } else {
+            res.redirect(`/stores/${storeID}/tableSelect`)
         }
-        res.render('tableCurrentOrder', context);
-        return;
-    }});
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/tableSelect`)
+    }
+});
 //테이블 메뉴판
 router.get("/:storeID/tables/:tableNumber/menus", storeModel.validStoreName, userModel.logInCheckMiddleware, storeModel.tableLeaderMiddleware, async (req, res, next) => {
     var storeID = String(req.params.storeID);

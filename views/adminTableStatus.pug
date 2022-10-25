@@ -9,8 +9,9 @@ head
 body
     each i in result
         article
-            p 테이블 번호: #{i.tableNumber}
-            p 테이블 합계: #{i.sum}
-            p 테이블 시작: #{i.createdAt}
+            a(href=`${env.URL}/stores/${storeID}/tables/${i.tableNumber}`)
+                p 테이블 번호: #{i.tableNumber}
+                p 테이블 합계: #{i.sum}
+                p 테이블 시작: #{i.createdAt}
 
 

@@ -24,8 +24,8 @@ const findKey = function (targetObj, key) {
 }
 
 const calculateSumAndCount = function(result) {
-    let sum = 0;
-    let allCount = 0;
+    var sum = 0;
+    var allCount = 0;
     for (i of result.orders) {
         sum = sum + parseInt(i.price) * parseInt(i.count)
         allCount = allCount + parseInt(i.count)
@@ -639,14 +639,21 @@ module.exports = {
         }
     },
     getOrderLists: async function(storeID, tableNumber, req) {
-        var result = await order.findOne(
-            {
-                'storeID': storeID,
-                'tableNumber': tableNumber,
-                'leaderEmail': req.user.email
+        try {
+            let result = await order.findOne(
+                {
+                    'storeID': storeID,
+                    'tableNumber': tableNumber,
+                }
+            ).exec();
+            if (result == null) {
+                throw new Error('Finding Table Failed!')
             }
-        ).exec();
-        return result;
+            return result;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
     },
     /** 생성시 storeInfo와 userSchema에도 order._id가 입력됨 */
     postNewTable: async function(storeID, tableNumber, req) {
@@ -794,7 +801,7 @@ module.exports = {
                     'email': req.user.email
                 }
             ).exec();
-            if (result.hasOwnProperty('admin')) {
+            if (req.user.hasOwnProperty('admin') && req.user.admin === true) {
                 next();
                 return;
             } else if (result.tableNumber == req.params.tableNumber) {
