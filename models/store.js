@@ -638,7 +638,7 @@ module.exports = {
             return false;
         }
     },
-    getOrderLists: async function(storeID, tableNumber, req) {
+    getTableInfo: async function(storeID, tableNumber) {
         try {
             let result = await order.findOne(
                 {
@@ -657,43 +657,64 @@ module.exports = {
     },
     /** 생성시 storeInfo와 userSchema에도 order._id가 입력됨 */
     postNewTable: async function(storeID, tableNumber, req) {
-        var result = await order.create(
-            {
-                '_id': mongoose.Types.ObjectId(),
-                'storeID': storeID,
-                'leaderEmail': req.user.email,
-                'tableNumber': tableNumber,
-            });
-        await storeInfo.findOneAndUpdate(
-            {
-                'storeID': storeID,
-            },
-            {
-                $push: {
-                    'tableLists': mongoose.Types.ObjectId(result._id)
+        try {
+            let result = await order.create(
+                {
+                    '_id': mongoose.Types.ObjectId(),
+                    'storeID': storeID,
+                    'tableNumber': tableNumber,
+                });
+            if (result == null) {
+                throw new Error('Creating New Table Failed!')
+            }
+            let updateTableListOnStoreInfoResult = await storeInfo.findOneAndUpdate(
+                {
+                    'storeID': storeID,
+                },
+                {
+                    $push: {
+                        'tableLists': mongoose.Types.ObjectId(result._id)
+                    }
+                });
+            if (updateTableListOnStoreInfoResult == null) {
+                throw new Error('Updating Table List On StoreInfo Failed!')
+            }
+            if (!req.user.hasOwnProperty('admin')) {
+                let updateTableNumberOnUserSchema = await User.findOneAndUpdate(
+                    {
+                        'email': req.user.email
+                    },
+                    {
+                        'tableNumber': tableNumber
+                    });
+                if (updateTableNumberOnUserSchema == null) {
+                    throw new Error('Updating Table Number On UserSchema Failed!')
                 }
-            });
-        await User.findOneAndUpdate(
-            {
-                'email': req.user.email
-            },
-            {
-                'tableNumber': tableNumber
-            });
+                }
+            return true;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
     },
     postNewDish: async function(storeID, tableNumber, menuName, req) {
         try {
             var result = await infoModel.getStoreMenus(storeID);
+            if (result == null) {
+                throw new Error('Getting StoreMenu Failed!')
+            }
             // orders.name으로 주문한 메뉴를 찾아보고,
             // 이미 있으면 count만 데려와서 더해주기, 없으면 $push
             var resultTableOrder = await order.findOne(
                 {
                     'storeID': storeID,
                     'tableNumber': tableNumber,
-                    'leaderEmail': req.user.email,
                     'didPay': false
                 }
             ).exec();
+            if (resultTableOrder == null) {
+                throw new Error('Finding Table Order Failed!')
+            }
             var orderArray = [];
             for (i of resultTableOrder.orders) {
                 orderArray.push(i.name);
@@ -705,7 +726,6 @@ module.exports = {
                     {
                         'storeID': storeID,
                         'tableNumber': tableNumber,
-                        'leaderEmail': req.user.email,
                         'orders': { $elemMatch: {
                             'name': menuName
                         }}
@@ -715,13 +735,12 @@ module.exports = {
                             'orders.$.count': beforeCount + Number(req.body.count)
                         }
                     }).exec();
-                return;
+                return true;
             } else if (orderArray.includes(menuName) == false) {
                 var result = await order.findOneAndUpdate(
                     {
                         'storeID': storeID,
                         'tableNumber': tableNumber,
-                        'leaderEmail': req.user.email,
                     },
                     {
                         $push: {
@@ -733,15 +752,63 @@ module.exports = {
                         }
                     }
                 );
-                return;
+                return true;
             }
+            return false;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
+    },
+    updateDish: async function(storeID, tableNumber, menuName, req) {
+        try {
+            let result = await order.findOneAndUpdate(
+                {
+                    'storeID': storeID,
+                    'tableNumber': tableNumber,
+                    'orders': { $elemMatch: {
+                        'name': menuName
+                    }}
+                },
+                {
+                    $set: {
+                        'orders.$.count': Number(req.body.count)
+                    }
+                }).exec();
+            if (result == null) {
+                throw new Error('Updating Dish Failed!')
+            }
+            return true;
         } catch (e) {
             console.log(e)
             return false;
         }
     },
     deleteDish: async function(storeID, tableNumber, menuName, req) {
-
+        try {
+            let result = order.findOneAndUpdate(
+                {
+                    'storeID': storeID,
+                    'tableNumber': tableNumber,
+                    'orders': { $elemMatch: {
+                        'name': menuName
+                    }}
+                },
+                {
+                    $pull: {
+                        'orders': {
+                            'name': menuName
+                        }
+                    }
+                });
+            if (result == null) {
+                throw new Error('Deleting Dish Failed!')
+            }
+            return true;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
     },
     menuValidationMiddleware: async function(req, res, next) {
         var result = await infoModel.getStoreMenus(req.params.storeID);
@@ -796,15 +863,16 @@ module.exports = {
     },
     tableLeaderMiddleware: async function(req, res, next) {
         try {
+            if (req.user.hasOwnProperty('admin') && req.user.admin === true) {
+                next();
+                return;
+            }
             var result = await User.findOne(
                 {
                     'email': req.user.email
                 }
             ).exec();
-            if (req.user.hasOwnProperty('admin') && req.user.admin === true) {
-                next();
-                return;
-            } else if (result.tableNumber == req.params.tableNumber) {
+            if (result.tableNumber == req.params.tableNumber) {
                 next();
                 return;
             } else {

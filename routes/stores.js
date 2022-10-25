@@ -460,18 +460,18 @@ router.post('/:storeID/songRequests/posts/:postID/modify', storeModel.validStore
 });
 //store의 신청곡 게시판 글 삭제 delete 요청
 router.get('/:storeID/songRequests/posts/:postID/delete', storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.musicListAuthorCheckMiddleware, async (req, res, next) => {
-        try {
-            var storeID = String(req.params.storeID);
-            var postID = String(req.params.postID);
-            let result = await storeModel.deleteSongRequestPost(storeID, postID, req);
-            if (result == false) {
-                throw new Error('Deleting SongRequestPost Failed!')
-            }
-            res.redirect(`/stores/${storeID}/songRequests/pages/1`);
-        } catch (e) {
-            console.log(e)
-            res.redirect(`/stores/${storeID}/songRequests/pages/1`);
+    try {
+        var storeID = String(req.params.storeID);
+        var postID = String(req.params.postID);
+        let result = await storeModel.deleteSongRequestPost(storeID, postID, req);
+        if (result == false) {
+            throw new Error('Deleting SongRequestPost Failed!')
         }
+        res.redirect(`/stores/${storeID}/songRequests/pages/1`);
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/songRequests/pages/1`);
+    }
 });
 
 
@@ -500,10 +500,18 @@ router.get("/:storeID/tableSelect/:tableNumber", storeModel.validStoreName, user
 });
 //테이블 정하기 post 요청
 router.post("/:storeID/tableSelect/:tableNumber", storeModel.validStoreName, userModel.logInCheckMiddleware, storeModel.userstableExistMiddleware, storeModel.takenTableMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var tableNumber = String(req.params.tableNumber);
-    await storeModel.postNewTable(storeID, tableNumber, req);
-    res.redirect(`/stores/${storeID}/tables/${tableNumber}`);
+    try {
+        var storeID = String(req.params.storeID);
+        var tableNumber = String(req.params.tableNumber);
+        let result = await storeModel.postNewTable(storeID, tableNumber, req);
+        if (result == false) {
+            throw new Error('Posting New Table Failed!')
+        }
+        res.redirect(`/stores/${storeID}/tables/${tableNumber}`);
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/tableSelect`)
+    }
 });
 //테이블 정산 or 전체 삭제 post 요청 //admin만 가능한 Middleware // 생성시 storeInfo.tableLists와 order.didPay: true와 userSchema.tableNumber가 입력되었으니 삭제 //didPay: true로
 
@@ -517,7 +525,7 @@ router.get("/:storeID/tables/:tableNumber", storeModel.validStoreName, userModel
         } else {
             var admin = false
         }
-        var result = await storeModel.getOrderLists(storeID, tableNumber, req);
+        var result = await storeModel.getTableInfo(storeID, tableNumber);
         if (result == false) {
             throw new Error('There is no table!')
         }
@@ -582,25 +590,78 @@ router.get("/:storeID/tables/:tableNumber/menus", storeModel.validStoreName, use
 // });
 //테이블 메뉴 주문 post 요청
 router.post("/:storeID/tables/:tableNumber/menus/:menuName", storeModel.validStoreName, userModel.logInCheckMiddleware, storeModel.tableLeaderMiddleware, storeModel.menuValidationMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var tableNumber = String(req.params.tableNumber);
-    var menuName = String(req.params.menuName);
-    await storeModel.postNewDish(storeID, tableNumber, menuName, req);
-    res.redirect(`/stores/${storeID}/tables/${tableNumber}`);
+    try {
+        var storeID = String(req.params.storeID);
+        var tableNumber = String(req.params.tableNumber);
+        var menuName = String(req.params.menuName);
+        let result = await storeModel.postNewDish(storeID, tableNumber, menuName, req);
+        if (result == false) {
+            throw new Error('Posting New Dish Failed!')
+        }
+        res.redirect(`/stores/${storeID}/tables/${tableNumber}`);
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/tables/${tableNumber}`)
+    }
 });
-//테이블 메뉴 수정 페이지 get 요청
-router.get("/:storeID/tables/:tableNumber/menus/:menuName/modifyPage",
+//테이블 어드민 메뉴 수정 페이지 get 요청
+router.get("/:storeID/tables/:tableNumber/menus/:menuName/modifyPage", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, storeModel.menuValidationMiddleware, async (req, res, next) => {
+    try {
+        var storeID = String(req.params.storeID);
+        var tableNumber = String(req.params.tableNumber);
+        var menuName = String(req.params.menuName);
+        let result = storeModel.getTableInfo(storeID, tableNumber)
+        if (result == false) {
+            throw new Error('Getting Order Info Failed!')
+        }
+        var foundTableOrderCount = result.orders.find(e => e.name === `${menuName}`).count
+        let context = {
+            pageTitle: '메뉴 수정',
+            storeID: storeID,
+            tableNumber: tableNumber,
+            menuName: menuName,
+            result: result,
+            foundTableOrderCount: foundTableOrderCount
+        }
+        res.render('tableOrderModify', context);
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/tables/${tableNumber}`)
+    }
+});
 
-//테이블 메뉴 수정 post 요청
-router.post("/:storeID/tables/:tableNumber/menus/:menuName/modify",
+//테이블 어드민 메뉴 수정 post 요청
+router.post("/:storeID/tables/:tableNumber/menus/:menuName/modify", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, storeModel.menuValidationMiddleware, async (req, res, next) => {
+    try {
+        let result = storeModel.updateDish(storeID, tableNumber, menuName, req)
+        if (result == false) {
+            throw new Error('Updating Dish Failed!')
+        }
+        res.redirect(`/stores/${storeID}/tables/${tableNumber}`)
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/tables/${tableNumber}`)
+    }
+});
 
-//테이블 메뉴 삭제 post 요청
-router.get("/:storeID/tables/:tableNumber/menus/:menuName/delete",
+//테이블 어드민 메뉴 삭제 post 요청
+router.get("/:storeID/tables/:tableNumber/menus/:menuName/delete", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, storeModel.menuValidationMiddleware, async (req, res, next) => {
+    try {
+        let result = storeModel.deleteDish(storeID, tableNumber, menuName, req)
+        if (result == false) {
+            throw new Error('Deleting Dish Failed!')
+        }
+        res.redirect(`/stores/${storeID}/tables/${tableNumber}`)
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/tables/${tableNumber}`)
+    }
+});
 
 
 
 //테이블 어드민 페이지
-router.get("/:storeID/admin/tableStatus", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, storeModel.tableLeaderMiddleware, async (req, res, next) => {
+router.get("/:storeID/admin/tableStatus", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, async (req, res, next) => {
     try {
         var storeID = String(req.params.storeID);
         let result = await storeModel.getTableStatus(storeID);
@@ -617,9 +678,6 @@ router.get("/:storeID/admin/tableStatus", storeModel.validStoreName, userModel.l
         res.redirect('/')
     }
 });
-//테이블 메뉴 개수 수정 //admin만 가능한 Middleware
-
-//테이블 메뉴 하나 삭제 //admin만 가능한 Middleware
 
 
 

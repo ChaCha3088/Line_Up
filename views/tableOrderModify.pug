@@ -1,0 +1,14 @@
+- env = process.env;
+
+doctype html 
+html(lang='ko')
+
+head 
+    title #{pageTitle}
+
+body
+    form(action=`/${storeID}/tables/${tableNumber}/menus/${menuName}/modify` method="POST")
+        p
+            input(placeholder="수량", name="count", value=foundTableOrderCount, type="number", required)
+        p
+            input(type="submit", value="수정")
