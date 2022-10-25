@@ -628,7 +628,6 @@ module.exports = {
                         'createdAt': result.createdAt
                     });
                 }
-            console.log(resultArray)
             return resultArray
         } catch (e) {
             console.log(e)
