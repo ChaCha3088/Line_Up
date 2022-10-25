@@ -160,17 +160,20 @@ module.exports = {
             });
             var exist = findValue(result.heart, email);
             if (exist == false) {
-                await FreeBoard.findOneAndUpdate({
+                let writingHeartOnPostResult = await FreeBoard.findOneAndUpdate({
                     'storeID': storeID,
                     '_id': postID
                 }, {
                     $push: {
                         'heart': email
                     }
-                });            
+                });
+                if (writingHeartOnPostResult == null) {
+                    throw new Error('Writing Heart on Post failed!')
+                }
                 return true;
             } else {
-                return false;
+                return;
             }} catch (e) {
                 console.log(e);
                 return false;
@@ -310,7 +313,7 @@ module.exports = {
                 '_id': commentID
             });
             if (findCommentResult == null) {
-                throw new Error('Find Comment failed!')
+                throw new Error('Finding Comment failed!')
             }
             var exist = findValue(findCommentResult.heart, email);
             if (exist == false) {
@@ -328,7 +331,7 @@ module.exports = {
                 }
                 return true;
             } else {
-                return false;
+                return;
             }} catch (e) {
                 console.log(e);
                 return false;
@@ -400,45 +403,57 @@ module.exports = {
     //     });
     // },
     getFreeBoardReComment: async function(storeID, postID, commentID, recommentID) {
-        var result = await FreeBoardReComment.findOne(
-            {
-                'storeID': storeID,
-                'postID': postID,
-                'commentID': commentID,
-                '_id': recommentID
-            }).exec();
-        return result;
+        try {
+            var result = await FreeBoardReComment.findOne(
+                {
+                    'storeID': storeID,
+                    'postID': postID,
+                    'commentID': commentID,
+                    '_id': recommentID
+                }).exec();
+            if (result == null) {
+                throw new Error('Getting FreeBoardReComment Failed!')
+            }
+            return result;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
     },
     postFreeBoardReComment: async function(storeID, postID, commentID, req) {
-        var result = await FreeBoardReComment.create({
-            '_id': mongoose.Types.ObjectId(),
-            'storeID': storeID,
-            'postID': mongoose.Types.ObjectId(postID),
-            'commentID': mongoose.Types.ObjectId(commentID),
-            'email': req.user.email,
-            'contents': {
-                'contents': req.body.recomment
-            },
-            'heart': []
+        try {
+            var result = await FreeBoardReComment.create({
+                '_id': mongoose.Types.ObjectId(),
+                'storeID': storeID,
+                'postID': mongoose.Types.ObjectId(postID),
+                'commentID': mongoose.Types.ObjectId(commentID),
+                'email': req.user.email,
+                'contents': {
+                    'contents': req.body.recomment
+                },
+                'heart': []
+                });
+            await FreeBoardComment.findOneAndUpdate(
+                {
+                'storeID': storeID,
+                'postID': postID,
+                '_id': commentID
+            }, {
+                $push: {
+                    'recomments': mongoose.Types.ObjectId(result._id)
+                }
             });
-        await FreeBoardComment.findOneAndUpdate(
-            {
-            'storeID': storeID,
-            'postID': postID,
-            '_id': commentID
-        }, {
-            $push: {
-                'recomments': mongoose.Types.ObjectId(result._id)
-            }
-        });
-        await UserHistory.findOneAndUpdate({
-            'userName': req.user.userName,
-            'email': req.user.email
-        }, {
-            $push: {
-                'recomments': mongoose.Types.ObjectId(result._id)
-            }
-        });
+            await UserHistory.findOneAndUpdate({
+                'userName': req.user.userName,
+                'email': req.user.email
+            }, {
+                $push: {
+                    'recomments': mongoose.Types.ObjectId(result._id)
+                }
+            });
+        } catch (e) {
+
+        }
     },
     postFreeBoardReCommentHeart: async function(storeID, postID, commentID, recommentID, req) {
         try {
@@ -450,7 +465,7 @@ module.exports = {
             });
             var exist = findValue(result.heart, email);
             if (exist == false) {
-                await FreeBoardReComment.findOneAndUpdate({
+                let writingHeartOnReCommentResult = await FreeBoardReComment.findOneAndUpdate({
                     'storeID': storeID,
                     'postID': postID,
                     'commentID': commentID,
@@ -460,9 +475,12 @@ module.exports = {
                         'heart': email
                     }
                 });
+                if (writingHeartOnReCommentResult == null) {
+                    throw new Error('Writing Heart on ReComment Failed!')
+                }
                 return true;
             } else {
-                return false;
+                return;
             }} catch (e) {
                 console.log(e);
                 return false;
@@ -764,35 +782,52 @@ module.exports = {
         return result;
     },
     getSongRequestPost: async function(storeID, postID) {
-        var result = await musicList.findOne(
-            {
-                'storeID': storeID,
-                '_id': postID
-            })
-        .exec();
-        return result;
+        try {
+            var result = await musicList.findOne(
+                {
+                    'storeID': storeID,
+                    '_id': postID
+                })
+            .exec();
+            if (result == null) {
+                throw new Error('Finding musicList Failed!')
+            }
+            return result;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
     },
     postSongRequestPost: async function(storeID, req) {
-        var result = await musicList.create({
-            'storeID': storeID,
-            'email': req.user.email,
-            'artist': req.body.artist,
-            'title': req.body.title,
-            'heart': []
-            });
-
-        var history = await UserHistory.findOneAndUpdate(
-            {
-            'userName': req.user.userName,
-            'email': req.user.email
-        }, {
-            $push: {
-                'musicList': 
-                    mongoose.Types.ObjectId(result._id)
+        try {
+            var result = await musicList.create({
+                'storeID': storeID,
+                'email': req.user.email,
+                'artist': req.body.artist,
+                'title': req.body.title,
+                'heart': []
+                });
+            if (result == null) {
+                throw new Error('Creating new musicList Failed!')
             }
-        });
-        console.log(history)
-        return result;
+            var historyResult = await UserHistory.findOneAndUpdate(
+                {
+                'userName': req.user.userName,
+                'email': req.user.email
+            }, {
+                $push: {
+                    'musicList': 
+                        mongoose.Types.ObjectId(result._id)
+                }
+            });
+            if (historyResult == null) {
+                throw new Error('Pushing new PopulatedMusicList Failed!')
+            }
+            return result;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
     },
     postSongRequestPostHeart: async function(storeID, postID, req) {
         try {
@@ -801,6 +836,9 @@ module.exports = {
                 'storeID': storeID,
                 '_id': postID
             });
+            if (result == null) {
+                throw new Error('Finding musicList Failed!')
+            }
             var exist = findValue(result.heart, email);
             if (exist == false) {
                 await musicList.findOneAndUpdate({
@@ -813,36 +851,57 @@ module.exports = {
                 });            
                 return true;
             } else {
-                return false;
+                return;
             }} catch (e) {
                 console.log(e);
                 return false;
             }
     },
     updateSongRequestPost: async function(storeID, postID, req) {
-        await musicList.findOneAndUpdate(
-            {
-                'storeID': storeID,
-                '_id': postID,
-            },
-            {
-                'title': req.body.title,
-            });
+        try {
+            let result = await musicList.findOneAndUpdate(
+                {
+                    'storeID': storeID,
+                    '_id': postID,
+                },
+                {
+                    'title': req.body.title,
+                });
+            if (result == null) {
+                return false;
+            }
+            return true;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
     },
     deleteSongRequestPost: async function(storeID, postID, req) {
-        var result = await musicList.findOneAndDelete(
-            {
-                'storeID': storeID,
-                '_id': postID
-            })
-            .exec();
-        await UserHistory.findOneAndUpdate({
-            'userName': req.user.userName,
-            'email': req.user.email
-        }, {
-            $pull: {
-                'musicList': mongoose.Types.ObjectId(result._id)
+        try {
+            var result = await musicList.findOneAndDelete(
+                {
+                    'storeID': storeID,
+                    '_id': postID
+                })
+                .exec();
+            if (result == null) {
+                throw new Error('Deleting musicList Failed!')
             }
-        });
+            let historyResult = await UserHistory.findOneAndUpdate({
+                'userName': req.user.userName,
+                'email': req.user.email
+            }, {
+                $pull: {
+                    'musicList': mongoose.Types.ObjectId(result._id)
+                }
+            });
+            if (historyResult == null) {
+                throw new Error('Deleting PopulatedMusicList Failed!')
+            } 
+            return true;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
     },
 }

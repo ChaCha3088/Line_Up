@@ -132,10 +132,12 @@ router.post('/:storeID/freeBoards/posts/:postID/hearts', storeModel.validStoreNa
         var storeID = String(req.params.storeID);
         var postID = String(req.params.postID);
         var result = await storeModel.postFreeBoardPostHeart(storeID, postID, req);
-        if (result == false) {
-            throw new Error('좋아요 실패')
+        if (result == true || undefined) {
+            res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
+            return;
+        } else if (result == false) {
+            throw new Error('Post FreeBoardPostHeart Failed!')
         }
-        res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
     } catch (e) {
         console.log(e)
         res.redirect(`/stores/${storeID}/freeBoards/pages/1`)
@@ -196,10 +198,13 @@ router.post('/:storeID/freeBoards/posts/:postID/comments/:commentID/commentHeart
         var postID = String(req.params.postID);
         var commentID = String(req.params.commentID);
         var result = await storeModel.postFreeBoardCommentHeart(storeID, postID, commentID, req);
-        if (result == false) {
+        if (result == true || undefined) {
+            res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
+            return;
+        }
+        else if (result == false) {
             throw new Error('Giving Heart on FreeBoardComment Failed!')
         }
-        res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
     } catch (e) {
         console.log(e)
         res.redirect(`/stores/${storeID}/freeBoards/pages/1`)
@@ -273,29 +278,46 @@ router.post("/:storeID/freeBoards/posts/:postID/comments/:commentID/write", stor
 });
 //store의 자유게시판의 대댓글 좋아요 post 요청
 router.post('/:storeID/freeBoards/posts/:postID/comments/:commentID/recomments/:recommentID/reCommentHearts', storeModel.validStoreName, userModel.logInCheckMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var postID = String(req.params.postID);
-    var commentID = String(req.params.commentID);
-    var recommentID = String(req.params.recommentID);
-    await storeModel.postFreeBoardReCommentHeart(storeID, postID, commentID, recommentID, req);
-    res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
+    try {
+        var storeID = String(req.params.storeID);
+        var postID = String(req.params.postID);
+        var commentID = String(req.params.commentID);
+        var recommentID = String(req.params.recommentID);
+        let result = await storeModel.postFreeBoardReCommentHeart(storeID, postID, commentID, recommentID, req);
+        if (result == true || undefined) {
+            res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
+            return;
+        } else if (result == false) {
+            throw new Error('Posting Heart on FreeBoardReComment Failed!');
+        }} catch (e) {
+            console.log(e)
+            res.redirect(`/stores/${storeID}/freeBoards/pages/1`);
+        }
 });
 //store의 자유게시판의 대댓글 수정 페이지 get 요청
 router.get("/:storeID/freeBoards/posts/:postID/comments/:commentID/recomments/:recommentID/modifyPage", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.freeBoardAuthorCheckMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var postID = String(req.params.postID);
-    var commentID = String(req.params.commentID);
-    var recommentID = String(req.params.recommentID);
-    var result = await storeModel.getFreeBoardReComment(storeID, postID, commentID, recommentID);
-    var context = {
-        pageTitle: '대댓글 수정',
-        storeID: storeID,
-        postID: postID,
-        commentID: commentID,
-        recommentID: recommentID,
-        result: result
-    };
-    res.render('freeBoardReCommentModify', context);
+    try {
+        var storeID = String(req.params.storeID);
+        var postID = String(req.params.postID);
+        var commentID = String(req.params.commentID);
+        var recommentID = String(req.params.recommentID);
+        var result = await storeModel.getFreeBoardReComment(storeID, postID, commentID, recommentID);
+        if (result == false) {
+            throw new Error('Getting FreeBoardReComment Failed!')
+        }
+        var context = {
+            pageTitle: '대댓글 수정',
+            storeID: storeID,
+            postID: postID,
+            commentID: commentID,
+            recommentID: recommentID,
+            result: result
+        };
+        res.render('freeBoardReCommentModify', context);
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
+    }
 });
 //store의 자유게시판의 대댓글 수정 update 요청
 router.post("/:storeID/freeBoards/posts/:postID/comments/:commentID/recomments/:recommentID/modify", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.freeBoardAuthorCheckMiddleware, async (req, res, next) => {
@@ -336,66 +358,117 @@ router.get("/:storeID/songRequests/pages/:pages", storeModel.validStoreName, use
 
 //store의 신청곡 게시판 글 읽기
 router.get("/:storeID/songRequests/posts/:postID", storeModel.validStoreName, userModel.logInCheckMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var postID = String(req.params.postID);
-    var result = await storeModel.getSongRequestPost(storeID, postID);
-    var context = {
-        pageTitle: result.title,
-        result: result,
-        storeID: storeID,
-        postID: postID,
-        req: req
+    try {
+        var storeID = String(req.params.storeID);
+        var postID = String(req.params.postID);
+        var result = await storeModel.getSongRequestPost(storeID, postID);
+        if (result == false) {
+            throw new Error('Getting SongRequestPost Failed!')
+        }
+        var context = {
+            pageTitle: result.title,
+            result: result,
+            storeID: storeID,
+            postID: postID,
+            req: req
+        }
+        res.render('songRequestRead', context);
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/songRequests/pages/1`);
     }
-    res.render('songRequestRead', context);
 });
 //store의 신청곡 게시판 글 작성 페이지
 router.get("/:storeID/songRequests/write", storeModel.validStoreName, userModel.logInCheckMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var context = {
-        pageTitle: '신청곡 작성',
-        storeID: storeID
-    };
-    res.render('songRequestWrite', context);
+    try {
+        var storeID = String(req.params.storeID);
+        var context = {
+            pageTitle: '신청곡 작성',
+            storeID: storeID
+        };
+        res.render('songRequestWrite', context);
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/songRequests/pages/1`);
+    }
 });
 //store의 신청곡 게시판 글 수정 페이지
 router.get("/:storeID/songRequests/posts/:postID/modifyPage", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.musicListAuthorCheckMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var postID = String(req.params.postID);
-    var result = await storeModel.getSongRequestPost(storeID, postID);
-    var context = {
-        pageTitle: '신청곡 수정',
-        storeID: storeID,
-        postID: postID,
-        result: result
-    };
-    res.render('songRequestModify', context);
+    try{
+        var storeID = String(req.params.storeID);
+        var postID = String(req.params.postID);
+        var result = await storeModel.getSongRequestPost(storeID, postID);
+        if (result == false) {
+            throw new Error('Getting SongRequestPost Failed!')
+        }
+        var context = {
+            pageTitle: '신청곡 수정',
+            storeID: storeID,
+            postID: postID,
+            result: result
+        };
+        res.render('songRequestModify', context);
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/songRequests/posts/${postID}`);
+    }
 });
 //store의 신청곡 게시판 글 작성 post 요청
 router.post('/:storeID/songRequests/write', storeModel.validStoreName, userModel.logInCheckMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var result = await storeModel.postSongRequestPost(storeID, req);
-    res.redirect(`/stores/${storeID}/songRequests/posts/${result._id}`);
+    try {
+        var storeID = String(req.params.storeID);
+        var result = await storeModel.postSongRequestPost(storeID, req);
+        if (result == false) {
+            throw new Error('Posting SongRequestPost Failed!')
+        }
+        res.redirect(`/stores/${storeID}/songRequests/posts/${result._id}`);
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/songRequests/pages/1`);
+    }
 });
 //store의 신청곡 게시판 글 좋아요 post 요청
 router.post('/:storeID/songRequests/posts/:postID/hearts', storeModel.validStoreName, userModel.logInCheckMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var postID = String(req.params.postID);
-    await storeModel.postSongRequestPostHeart(storeID, postID, req);
-    res.redirect(`/stores/${storeID}/songRequests/posts/${postID}`);
+    try {
+        var storeID = String(req.params.storeID);
+        var postID = String(req.params.postID);
+        let result = await storeModel.postSongRequestPostHeart(storeID, postID, req);
+        if (result == true || undefined) {
+            res.redirect(`/stores/${storeID}/songRequests/posts/${postID}`);
+        } else if (result == false) {
+            throw new Error('Writing Heart on SongRequest Failed!')
+        }} catch (e) {
+            console.log(e)
+            res.redirect(`/stores/${storeID}/songRequests/posts/${postID}`);
+        }
 });
 //store의 신청곡 게시판 글 수정 update 요청
 router.post('/:storeID/songRequests/posts/:postID/modify', storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.musicListAuthorCheckMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var postID = String(req.params.postID);
-    await storeModel.updateSongRequestPost(storeID, postID, req);
-    res.redirect(`/stores/${storeID}/songRequests/posts/${postID}`);
+    try {
+        var storeID = String(req.params.storeID);
+        var postID = String(req.params.postID);
+        let result = await storeModel.updateSongRequestPost(storeID, postID, req);
+        if (result == false)
+        res.redirect(`/stores/${storeID}/songRequests/posts/${postID}`);
+    } catch (e) {
+        res.redirect(`/stores/${storeID}/songRequests/pages/1`);
+    }
+
 });
 //store의 신청곡 게시판 글 삭제 delete 요청
 router.get('/:storeID/songRequests/posts/:postID/delete', storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.musicListAuthorCheckMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var postID = String(req.params.postID);
-    await storeModel.deleteSongRequestPost(storeID, postID, req);
-    res.redirect(`/stores/${storeID}/songRequests/pages/1`);
+        try {
+            var storeID = String(req.params.storeID);
+            var postID = String(req.params.postID);
+            let result = await storeModel.deleteSongRequestPost(storeID, postID, req);
+            if (result == false) {
+                throw new Error('Deleting SongRequestPost Failed!')
+            }
+            res.redirect(`/stores/${storeID}/songRequests/pages/1`);
+        } catch (e) {
+            console.log(e)
+            res.redirect(`/stores/${storeID}/songRequests/pages/1`);
+        }
 });
 
 
