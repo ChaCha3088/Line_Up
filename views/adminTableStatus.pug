@@ -1,10 +1,6 @@
 - env = process.env;
 
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/adminMenuBar.pug
 
 body
     a(href=`${env.URL}/stores/${storeID}/tableSelect`) 테이블 추가

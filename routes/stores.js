@@ -687,6 +687,7 @@ router.get("/:storeID/admin/tableStatus", storeModel.validStoreName, userModel.l
         var storeID = String(req.params.storeID);
         let result = await storeModel.getTableStatus(storeID);
         let context = {
+            pageTitle: '테이블 현황',
             storeID: storeID,
             result: result
         }

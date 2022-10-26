@@ -17,6 +17,7 @@ const uuid = require('uuid');
 
 app.set('views', path.join(__dirname, 'views')); // 폴더 경로 지정
 app.set('view engine' , 'pug'); // 확장자 지정
+app.use(express.static('public'));
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
