@@ -20,7 +20,7 @@ body
                     a(href=env.URL+'/stores/'+storeID+'/songRequests/posts/'+postID+'/delete') 삭제
 
                 h2 아티스트: #{result.artist}
-                h2 제목: #{result.title.title}
+                p 제목: #{result.title.title}
                 ul 
                     if result.heart !== undefined
                         form(action=env.URL+'/stores/'+storeID+'/songRequests/posts/'+postID+'/hearts' method='POST')
