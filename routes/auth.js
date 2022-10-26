@@ -1,74 +1,95 @@
-const path = require('path');
-require("dotenv").config({path: path.join(__dirname, '/.env')});
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, "/.env") });
 
-const express = require('express');
+const express = require("express");
 const app = express();
 const router = express.Router();
-const passport = require('passport');
-let LocalStrategy = require('passport-local').Strategy;
-let KakaoStrategy = require('passport-kakao').Strategy;
-const session = require('express-session');
-const axios = require('axios');
-const UserSchema = require('../models/schemas/user');
-const Sessions = require('../models/schemas/session');
-const userModel = require('../models/user');
+const passport = require("passport");
+let LocalStrategy = require("passport-local").Strategy;
+let KakaoStrategy = require("passport-kakao").Strategy;
+const session = require("express-session");
+const axios = require("axios");
+const UserSchema = require("../models/schemas/user");
+const Sessions = require("../models/schemas/session");
+const userModel = require("../models/user");
 
 app.use(passport.session());
 
-router.get('/login', userModel.alreadyLogInCheckMiddleware, async (req, res, next) => {
+router.get(
+  "/login",
+  userModel.alreadyLogInCheckMiddleware,
+  async (req, res, next) => {
     const context = {
-        pageTitle: '로그인',
-    }
-    res.render('login', context);
-});
+      pageTitle: "로그인",
+    };
+    res.render("login", context);
+  }
+);
 
-router.post('/login', userModel.alreadyLogInCheckMiddleware, passport.authenticate('login', {
-    failureRedirect: '/',
-}), async (req, res) => {
-    res.redirect('/');
-});
+router.post(
+  "/login",
+  userModel.alreadyLogInCheckMiddleware,
+  passport.authenticate("login", {
+    failureRedirect: "/",
+  }),
+  async (req, res) => {
+    res.redirect("/");
+  }
+);
 
-
-router.get('/logout', userModel.logInCheckMiddleware, async (req, res, next) => {
+router.get(
+  "/logout",
+  userModel.logInCheckMiddleware,
+  async (req, res, next) => {
     try {
-        //sessiondb를 지워주고
-        let deletedCount = await Sessions.deleteMany( { 'session.passport.user.email': req.session.passport.user.email } );
-        console.log(`필요없는 세션의 개수는 ${deletedCount.deletedCount}`)
+      //sessiondb를 지워주고
+      let deletedCount = await Sessions.deleteMany({
+        "session.passport.user.email": req.session.passport.user.email,
+      });
+      console.log(`필요없는 세션의 개수는 ${deletedCount.deletedCount}`);
 
-        // 세션 정리
-        req.logout((err) => {
-            if (err) {
-                req.session.destroy();
-                res.clearCookie('connect.sid');
-                res.redirect("/");
-            } else {
-                req.session.destroy();
-                res.clearCookie('connect.sid');
-                res.redirect('/');
-            }
-        });
+      // 세션 정리
+      req.logout((err) => {
+        if (err) {
+          req.session.destroy();
+          res.clearCookie("connect.sid");
+          res.redirect("/");
+        } else {
+          req.session.destroy();
+          res.clearCookie("connect.sid");
+          res.redirect("/");
+        }
+      });
     } catch (error) {
-        console.error(error);
-        req.session.destroy();
-        res.clearCookie('connect.sid');
-        res.redirect('/');
+      console.error(error);
+      req.session.destroy();
+      res.clearCookie("connect.sid");
+      res.redirect("/");
     }
-});
+  }
+);
 
-router.get('/signup', userModel.alreadyLogInCheckMiddleware, async (req, res, next) => {
+router.get(
+  "/signup",
+  userModel.alreadyLogInCheckMiddleware,
+  async (req, res, next) => {
     const context = {
-        pageTitle: '회원가입',
-    }
-    res.render('signup', context);
-});
-router.post('/signup', userModel.alreadyLogInCheckMiddleware, passport.authenticate('signup', {
-    failureRedirect: '/',
+      pageTitle: "회원가입",
+    };
+    res.render("signup", context);
+  }
+);
+router.post(
+  "/signup",
+  userModel.alreadyLogInCheckMiddleware,
+  passport.authenticate("signup", {
+    failureRedirect: "/",
     failureMessage: true,
-}), (req, res, next) => {
-    res.redirect('/');
-});
-
-
+  }),
+  (req, res, next) => {
+    res.redirect("/");
+  }
+);
 
 // router.get('/kakao', userModel.alreadyLogInCheckMiddleware, passport.authenticate('kakao'));
 // // 로그인 했는지 확인 먼저
@@ -128,7 +149,5 @@ router.post('/signup', userModel.alreadyLogInCheckMiddleware, passport.authentic
 //         res.redirect('/');
 //     }
 // });
-
-
 
 module.exports = router;

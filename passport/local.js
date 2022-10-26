@@ -3,7 +3,6 @@ const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
 const UserSchema = require('../models/schemas/user');
 const UserHistory = require('../models/schemas/Board/userHistory');
-const connectionAuth = mongoose.createConnection('mongodb://localhost:27017/auth');
 let Sessions = require('../models/schemas/session');
 const userModel = require('../models/user');
 const crypto = require('crypto');

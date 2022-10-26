@@ -6,7 +6,6 @@ const passportConfig = require("./passport");
 const MongoStore = require('connect-mongo');
 const session = require('express-session');
 const app = express();
-const ticketsRouter = require('./routes/tickets');
 const storesRouter = require('./routes/stores');
 const authRouter = require('./routes/auth');
 const adminRouter = require('./routes/admin')
@@ -46,7 +45,6 @@ passportConfig();
 
 app.use('/auth', authRouter);
 app.use("/stores", storesRouter);
-app.use("/tickets", ticketsRouter);
 app.use('/admin', adminRouter);
 
 app.get('/', async (req, res) => {
