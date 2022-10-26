@@ -1,10 +1,6 @@
 - env = process.env;
 
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/boardMenuBar.pug
 
 body
     a(href=env.URL+'/stores/'+storeID+'/freeBoards/write') 게시글 작성하기
@@ -13,11 +9,11 @@ body
         each i in freeBoardListsResult
             article
                 a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+i._id)
-                    h3 #{i.email}
-                    - createdTime = new Date(i.contents.createdAt).toLocaleString();
-                    time 작성: #{createdTime}
-                    h2 #{i.title}
-                    p #{i.contents.contents}
+                    div
+                        p 작성자: #{i.email.slice(0, 3)}
+                        - createdTime = new Date(i.contents.createdAt).toLocaleString();
+                        time 작성: #{createdTime.slice(-18)}
+                    h3 #{i.title.slice(0, 10)}
                     ul  
                         if i.heart !== undefined
                             li 좋아요: #{Object.keys(i.heart).length}

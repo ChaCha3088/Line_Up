@@ -1,0 +1,15 @@
+- env = process.env;
+
+include Layout/adminMenuBar.pug
+
+body
+    div
+        h1 주문했던 메뉴
+        if result !== null
+            each i in result.orders
+                ul
+                    p #{i.name}: #{i.price} X #{i.count}
+            
+            p 합계 #{sum}원
+
+            p 수량 #{allCount}개

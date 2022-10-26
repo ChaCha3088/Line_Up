@@ -2,7 +2,6 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
 const UserSchema = require('../models/schemas/user');
-const UserHistory = require('../models/schemas/Board/userHistory');
 let Sessions = require('../models/schemas/session');
 const userModel = require('../models/user');
 const crypto = require('crypto');
@@ -74,14 +73,6 @@ module.exports = () => {
                         'salt': genedPassword.salt,
                         'hash': genedPassword.hash
                     });
-
-                    let userHistoryResult = await UserHistory.create(
-                        {
-                            '_id': mongoose.Types.ObjectId(),
-                            'userName': req.body.userName,
-                            'email': email,
-                        }
-                    );
 
                     let newUser = {
                         'userName': req.body.userName,

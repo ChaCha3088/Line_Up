@@ -1,0 +1,30 @@
+div {
+    font-size : 30px;
+}
+a {
+    border-radius: 50px;
+    border: 2px solid black;
+    text-decoration: none;
+    color: black;
+    display: flex;
+    font-size : 30px;
+}
+body {
+    padding-top: 120px;
+}
+li {
+    justify-content: space-around;
+    font-size : 30px;
+    text-align: center;
+}
+input {
+    font-size : 30px;
+    float: right;
+}
+button {
+    font-size : 30px;
+}
+p {
+    display: flex;
+    flex-direction: column;
+}

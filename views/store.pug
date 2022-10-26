@@ -1,24 +1,10 @@
 - env = process.env;
 
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/boardMenuBar.pug
 
 body
     h1
-        div #{storeID}
-    header
-        nav
-            ul
-                li
-                    //자유게시판
-                    a(href=env.URL+'/stores/'+storeID+'/freeBoards/pages/1') 자유게시판
-                li
-                    //신청곡
-                    a(href=env.URL+'/stores/'+storeID+'/songRequests/pages/1') 신청곡
-
+        div 저희는 건축대학 과동아리 3A입니다!
                 //-     //주문
                 //- if leaderInfo == undefined 
                 //-     li

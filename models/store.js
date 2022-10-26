@@ -7,7 +7,6 @@ const order = require('./schemas/Info/order');
 const storeInfo = require('./schemas/Info/storeInfo');
 const musicList = require('../models/schemas/Board/musicList');
 const User = require('./schemas/user');
-const UserHistory = require('./schemas/Board/userHistory');
 const infoModel = require('./info');
 
 
@@ -181,21 +180,6 @@ module.exports = {
             if (createFreeBoardPostResult == null) {
                 throw new Error('Creating FreeBoardPost Failed!')
             }
-
-            var populateUserHistoryResult = await UserHistory.findOneAndUpdate(
-                {
-                'userName': req.user.userName,
-                'email': req.user.email
-            }, {
-                $push: {
-                    'posts': 
-                        mongoose.Types.ObjectId(createFreeBoardPostResult._id)
-                }
-            });
-
-            if (populateUserHistoryResult == null) {
-                throw new Error('Populating UserHistory Failed!')
-            }
             return true;
         } catch (e) {
             console.log(e)
@@ -272,18 +256,6 @@ module.exports = {
             if (deleteFreeBoardPostResult == null) {
                 throw new Error('Deleting FreeBoardPost Failed!')
             }
-            var deleteUserHistoryResult = await UserHistory.findOneAndUpdate(
-                {
-                    'userName': req.user.userName,
-                    'email': req.user.email,
-                }, {
-                    $pull: {
-                        'posts': mongoose.Types.ObjectId(deleteFreeBoardPostResult._id)
-                    }
-                });
-            if (deleteUserHistoryResult == null) {
-                throw new Error('Deleting Populated FreeBoardPost Failed!')
-            }
         } catch (e) {
             console.log(e)
             return false;
@@ -337,17 +309,6 @@ module.exports = {
             });
             if (populatePostResult == null) {
                 throw new Error('Writing _id for Post Population failed!')
-            } 
-            var populateHistoryResult = await UserHistory.findOneAndUpdate({
-                'userName': req.user.userName,
-                'email': req.user.email
-            }, {
-                $push: {
-                    'comments': mongoose.Types.ObjectId(createResult._id)
-                }
-            });
-            if(populateHistoryResult == null) {
-                throw new Error('Writing _id for History Population failed!')
             }
             return true;
         } catch (e) {
@@ -418,23 +379,12 @@ module.exports = {
                 },
                 {
                     'contents': {
-                        'contents': '',
-                        'isdeleted': true
+                        'contents': undefined,
+                        'isDeleted': true
                     }
                 });
             if (deleteFreeBoardCommentResult == null) {
             throw new Error('Deleting FreeBoardComment Failed!')
-            }
-            var deleteUserHistoryResult = await UserHistory.findOneAndUpdate({
-                'userName': req.user.userName,
-                'email': req.user.email
-            }, {
-                $pull: {
-                    'comments': mongoose.Types.ObjectId(deleteFreeBoardCommentResult._id)
-                }
-            });
-            if (deleteUserHistoryResult == null) {
-                throw new Error('Deleting Populated FreeBoardComment Failed!')
             }
         } catch (e) {
             console.log(e)
@@ -484,7 +434,10 @@ module.exports = {
                 },
                 'heart': []
                 });
-            await FreeBoardComment.findOneAndUpdate(
+            if (result == null) {
+                throw new Error('Creating FreeBoardReComment Failed!')
+            }
+            let populatedFreeBoardComment = await FreeBoardComment.findOneAndUpdate(
                 {
                 'storeID': storeID,
                 'postID': postID,
@@ -494,16 +447,13 @@ module.exports = {
                     'recomments': mongoose.Types.ObjectId(result._id)
                 }
             });
-            await UserHistory.findOneAndUpdate({
-                'userName': req.user.userName,
-                'email': req.user.email
-            }, {
-                $push: {
-                    'recomments': mongoose.Types.ObjectId(result._id)
-                }
-            });
+            if (populatedFreeBoardComment == null) {
+                throw new Error('Creating PopulatedFreeBoardComment Failed!')
+            }
+            return true
         } catch (e) {
-
+            console.log(e)
+            return false;
         }
     },
     postFreeBoardReCommentHeart: async function(storeID, postID, commentID, recommentID, req) {
@@ -568,7 +518,7 @@ module.exports = {
                     'commentID': commentID,
                     '_id': recommentID,
                 });
-            let deletePopulatedFreeBoardCommentResult = await FreeBoardReComment.findOneAndUpdate(
+            let deletePopulatedFreeBoardCommentResult = await FreeBoardComment.findOneAndUpdate(
                 {
                     'storeID': storeID,
                     'postID': postID,
@@ -578,23 +528,11 @@ module.exports = {
                         'recomments': mongoose.Types.ObjectId(deleteFreeBoardReCommentResult._id)
                     }
                 });
-            let deletePopulatedFreeBoardReCommentResult = await UserHistory.findOneAndUpdate(
-                {
-                'userName': req.user.userName,
-                'email': req.user.email
-            }, {
-                $pull: {
-                    'recomments': mongoose.Types.ObjectId(deleteFreeBoardReCommentResult._id)
-                }
-            });
             if (deleteFreeBoardReCommentResult == null) {
                 throw new Error('Deleting FreeBoardReComment Failed!')
             }
             if (deletePopulatedFreeBoardCommentResult == null) {
                 throw new Error('Deleting PopulatedFreeBoardComment Failed!')
-            }
-            if (deletePopulatedFreeBoardReCommentResult == null) {
-                throw new Error('Deleting PopulatedFreeBoardReComment Failed!')
             }
             return;
         } catch (e) {
@@ -647,6 +585,41 @@ module.exports = {
                     'didPay': false
                 }
             ).exec();
+            if (result == null) {
+                throw new Error('Finding Table Failed!')
+            }
+            return result;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
+    },
+    getPaidTableLists: async function(storeID) {
+        try {
+            let result = await order.find(
+                {
+                    'storeID': storeID,
+                    'didPay': true
+                }
+            ).sort({'updatedAt': -1});
+            if (result == null) {
+                throw new Error('Finding Table Failed!')
+            }
+            return result;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
+    },
+    getPaidTableInfo: async function(storeID, orderNumber) {
+        try {
+            let result = await order.findOne(
+                {
+                    'storeID': storeID,
+                    '_id': orderNumber,
+                    'didPay': true
+                }
+            ).sort({'updatedAt': -1});
             if (result == null) {
                 throw new Error('Finding Table Failed!')
             }
@@ -985,24 +958,13 @@ module.exports = {
                 'storeID': storeID,
                 'email': req.user.email,
                 'artist': req.body.artist,
-                'title': req.body.title,
+                'title': {
+                    'title': req.body.title,
+                },
                 'heart': []
                 });
             if (result == null) {
                 throw new Error('Creating new musicList Failed!')
-            }
-            var historyResult = await UserHistory.findOneAndUpdate(
-                {
-                'userName': req.user.userName,
-                'email': req.user.email
-            }, {
-                $push: {
-                    'musicList': 
-                        mongoose.Types.ObjectId(result._id)
-                }
-            });
-            if (historyResult == null) {
-                throw new Error('Pushing new PopulatedMusicList Failed!')
             }
             return result;
         } catch (e) {
@@ -1018,7 +980,7 @@ module.exports = {
                 '_id': postID
             });
             if (result == null) {
-                throw new Error('Finding musicList Failed!')
+                throw new Error('Finding SongRequest Failed!')
             }
             var exist = findValue(result.heart, email);
             if (exist == false) {
@@ -1049,10 +1011,12 @@ module.exports = {
                     '_id': postID,
                 },
                 {
-                    'title': req.body.title,
+                    'title': {
+                        'title': req.body.title,
+                    }
                 });
             if (result == null) {
-                return false;
+                throw new Error('Updating SongRequest Failed!')
             }
             return true;
         } catch (e) {
@@ -1071,17 +1035,6 @@ module.exports = {
             if (result == null) {
                 throw new Error('Deleting musicList Failed!')
             }
-            let historyResult = await UserHistory.findOneAndUpdate({
-                'userName': req.user.userName,
-                'email': req.user.email
-            }, {
-                $pull: {
-                    'musicList': mongoose.Types.ObjectId(result._id)
-                }
-            });
-            if (historyResult == null) {
-                throw new Error('Deleting PopulatedMusicList Failed!')
-            } 
             return true;
         } catch (e) {
             console.log(e)

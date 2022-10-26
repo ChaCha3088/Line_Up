@@ -3,8 +3,12 @@ include adminTopLayout.pug
 block header
     header 
         h1
-            a(href=`${env.URL}/stores/${storeID}/admin/tableStatus`) Admin
+            a(href=`/`) Home
+            a(href=`${env.URL}/stores/${storeID}/admin/tableStatus`) 테이블 현황
         nav 
             ul 
                 li 
+                    a(href=`${env.URL}/stores/${storeID}/admin/paidOrders`) 정산된 테이블 확인
+                li 
                     a(href=`${env.URL}/stores/${storeID}/tableSelect`) 테이블 추가
+                

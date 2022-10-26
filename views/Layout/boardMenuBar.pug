@@ -1,0 +1,19 @@
+include boardTopLayout.pug
+
+block header
+    header 
+        h1
+            a(href=`/`) Home
+        h1
+            if (storeID == 'AAA')
+                a(href=`/stores/${storeID}`) 3A
+            else 
+                a(href=`/stores/${storeID}`) #{storeID}
+        nav 
+            ul 
+                li
+                    //자유게시판
+                    a(href=env.URL+'/stores/'+storeID+'/freeBoards/pages/1') 자유게시판
+                li
+                    //신청곡
+                    a(href=env.URL+'/stores/'+storeID+'/songRequests/pages/1') 신청곡 게시판

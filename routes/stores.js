@@ -271,11 +271,19 @@ router.get("/:storeID/freeBoards/posts/:postID/comments/:commentID/delete", stor
 
 //store의 자유게시판의 대댓글 작성 post 요청
 router.post("/:storeID/freeBoards/posts/:postID/comments/:commentID/write", storeModel.validStoreName, userModel.logInCheckMiddleware, async (req, res, next) => {
-    var storeID = String(req.params.storeID);
-    var postID = String(req.params.postID);
-    var commentID = String(req.params.commentID);
-    await storeModel.postFreeBoardReComment(storeID, postID, commentID, req);
-    res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
+    try {
+        var storeID = String(req.params.storeID);
+        var postID = String(req.params.postID);
+        var commentID = String(req.params.commentID);
+        let result = await storeModel.postFreeBoardReComment(storeID, postID, commentID, req);
+        if (result == false) {
+            throw new Error('Posting FreeBoardReComment Failed!')
+        }
+        res.redirect(`/stores/${storeID}/freeBoards/posts/${postID}`);
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/freeBoards/pages/1`);
+    }
 });
 //store의 자유게시판의 대댓글 좋아요 post 요청
 router.post('/:storeID/freeBoards/posts/:postID/comments/:commentID/recomments/:recommentID/reCommentHearts', storeModel.validStoreName, userModel.logInCheckMiddleware, async (req, res, next) => {
@@ -695,6 +703,47 @@ router.get("/:storeID/admin/tableStatus", storeModel.validStoreName, userModel.l
     } catch (e) {
         console.log(e)
         res.redirect('/')
+    }
+});
+
+//테이블 어드민 완료된 주문 목록 페이지
+router.get("/:storeID/admin/paidOrders", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, async (req, res, next) => {
+    try {
+        var storeID = String(req.params.storeID);
+        let result = await storeModel.getPaidTableLists(storeID);
+        let context = {
+            pageTitle: '정산된 테이블 목록',
+            storeID: storeID,
+            result: result
+        }
+        res.render('adminPaidTableStatus', context)
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/admin/tableStatus`)
+    }
+});
+//테이블 어드민 완료된 주문 상세 페이지
+router.get("/:storeID/admin/paidOrders/:orderNumber", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, async (req, res, next) => {
+    try {
+        var storeID = String(req.params.storeID);
+        var orderNumber = String(req.params.orderNumber);
+        let result = await storeModel.getPaidTableInfo(storeID, orderNumber);
+        if (result == null) {
+            throw new Error('Getting PaiedTableInfo Failed!')
+        }
+        let calculateResult = storeModel.calculateSumAndCount(result)
+        var context = {
+            pageTitle: '완료된 주문',
+            storeID: storeID,
+            result: result,
+            orderNumber: orderNumber,
+            sum: calculateResult.sum,
+            allCount: calculateResult.allCount,
+        }
+        res.render('adminPaidTableOrder', context)
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/admin/paidOrders`)
     }
 });
 

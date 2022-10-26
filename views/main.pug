@@ -5,6 +5,8 @@ html(lang='ko')
 
 head 
     title #{pageTitle}
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    link(rel='stylesheet', href='/StyleSheets/Layout.css')
 
 body
     if loginResult.result == 1
@@ -14,11 +16,15 @@ body
         ul
         each i in storeListsResult
             li
-                a(href=env.URL+'/stores/'+i) #{i}
+                if (i == 'AAA')
+                    a(href=env.URL+'/stores/'+i) 3A
+                else 
+                    a(href=env.URL+'/stores/'+i) #{i}
 
     else
-        div 로그인이 필요합니다.
-            li
-                a(href=env.URL+'/auth/login/') 로그인!
-            li
-                a(href=env.URL+'/auth/signup/') 회원가입!
+        div 로그인이 필요합니다!
+            ul
+                li
+                    a(href=env.URL+'/auth/login/') 로그인!
+                li
+                    a(href=env.URL+'/auth/signup/') 회원가입!

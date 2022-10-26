@@ -1,10 +1,6 @@
 - env = process.env;
 
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/boardMenuBar.pug
 
 body
     div
@@ -12,11 +8,11 @@ body
             div
                 h3 #{result.email}
 
-                - createdPostTime = new Date(result.contents.createdAt).toLocaleString();
+                - createdPostTime = new Date(result.contents.createdAt).toLocaleString().slice(-18);
                 if result.contents.createdAt == result.contents.updatedAt
                     time 작성: #{createdPostTime}
                 else
-                    - updatedPostTime = new Date(result.contents.updatedAt).toLocaleString();
+                    - updatedPostTime = new Date(result.contents.updatedAt).toLocaleString().slice(-18);
                     time 작성: #{createdPostTime} 수정: #{updatedPostTime}
 
                 if result.email == req.user.email || req.user.admin === true
@@ -40,75 +36,77 @@ body
                     else if result.comments !== null && result.recomments !== null
                         li 댓글: #{Object.keys(result.comments).length + Object.keys(result.recomments).length}
         
-        if result.comments !== null
-            each c in result.comments
-                article
-                    div
-                        if c.contents.isDeleted == false
-                            h3 #{c.email}
+        ul
+            if result.comments !== null
+                each c in result.comments
+                    article
+                        div
+                            if c.contents.isDeleted == false
+                                h3 #{c.email}
 
-                            - createdCommentTime = new Date(c.contents.createdAt).toLocaleString();
-                            if c.contents.createdAt == c.contents.updatedAt
-                                time 작성: #{createdCommentTime}
-                            else
-                                - updatedCommentTime = new Date(c.contents.updatedAt).toLocaleString();
-                                time 작성: #{createdCommentTime} 수정: #{updatedCommentTime}
-                                
-                            if c.email == req.user.email || req.user.admin === true
-                                a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/modifyPage') 수정
-                                a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/delete') 삭제
+                                - createdCommentTime = new Date(c.contents.createdAt).toLocaleString().slice(-18);
+                                if c.contents.createdAt == c.contents.updatedAt
+                                    time 작성: #{createdCommentTime}
+                                else if c.contents.createdAt !== c.contents.updatedAt
+                                    - updatedCommentTime = new Date(c.contents.updatedAt).toLocaleString().slice(-18);
+                                    time 작성: #{createdCommentTime} 수정: #{updatedCommentTime}
+                                    
+                                if c.email == req.user.email || req.user.admin === true
+                                    a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/modifyPage') 수정
+                                    a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/delete') 삭제
 
-                            h2 #{c.title}
+                                h2 #{c.title}
 
-                            p #{c.contents.contents}
+                                p #{c.contents.contents}
 
-                            ul 
-                                if c.heart !== undefined
-                                    form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/commentHearts' method='POST')
-                                        button(type='submit' formmethod='POST') 좋아요! #{Object.keys(c.heart).length}
-                                else
-                                    form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/commentHearts' method='POST')
-                                        button(type='submit' formmethod='POST') 좋아요! 0
-
-                            form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/write' method="POST")
-                                p
-                                    input(placeholder="대댓글을 입력하세요.", name="recomment", type="text", required)
-                                p
-                                    input(type="submit", value="작성")
-                        else if c.contents.isDeleted == true
-                            p 댓글이 삭제되었습니다.
-
-                if c.recomments !== null
-                    each d in c.recomments
-                        article
-                            div
-                                if d.contents.isDeleted !== true
-                                    h3 #{d.email}
-
-                                    - createdReCommentTime = new Date(d.contents.createdAt).toLocaleString();
-                                    if d.contents.createdAt == d.contents.updatedAt
-                                        time 작성: #{createdReCommentTime}
+                                ul 
+                                    if c.heart !== undefined
+                                        form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/commentHearts' method='POST')
+                                            button(type='submit' formmethod='POST') 좋아요! #{Object.keys(c.heart).length}
                                     else
-                                        - updatedReCommentTime = new Date(d.contents.updatedAt).toLocaleString();
-                                        time 작성: #{createdReCommentTime} 수정: #{updatedReCommentTime}
-                                        
-                                    if d.email == req.user.email || req.user.admin === true
-                                        a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/recomments/'+d._id+'/modifyPage') 수정
-                                        a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/recomments/'+d._id+'/delete') 삭제
+                                        form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/commentHearts' method='POST')
+                                            button(type='submit' formmethod='POST') 좋아요! 0
 
-                                    h2 #{d.title}
+                                form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/write' method="POST")
+                                    p
+                                        input(placeholder="대댓글을 입력하세요.", name="recomment", type="text", required)
+                                    p
+                                        input(type="submit", value="작성")
+                            else if c.contents.isDeleted == true
+                                p 댓글이 삭제되었습니다.
 
-                                    p #{d.contents.contents}
+                    ul
+                        if c.recomments !== null
+                            each d in c.recomments
+                                article
+                                    div
+                                        if d.contents.isDeleted !== true
+                                            h3 #{d.email}
 
-                                    ul 
-                                        if d.heart !== undefined
-                                            form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/recomments/'+d._id+'/reCommentHearts' method='POST')
-                                                button(type='submit' formmethod='POST') 좋아요! #{Object.keys(d.heart).length}
-                                        else
-                                            form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/recomments/'+d._id+'/reCommentHearts' method='POST')
-                                                button(type='submit' formmethod='POST') 좋아요! 0
-                                else 
-                                    p 대댓글이 삭제되었습니다.
+                                            - createdReCommentTime = new Date(d.contents.createdAt).toLocaleString().slice(-18);
+                                            if d.contents.createdAt == d.contents.updatedAt
+                                                time 작성: #{createdReCommentTime}
+                                            else if d.contents.createdAt == d.contents.updatedAt
+                                                - updatedReCommentTime = new Date(d.contents.updatedAt).toLocaleString().slice(-18);
+                                                time 작성: #{createdReCommentTime} 수정: #{updatedReCommentTime}
+                                                
+                                            if d.email == req.user.email || req.user.admin === true
+                                                a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/recomments/'+d._id+'/modifyPage') 수정
+                                                a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/recomments/'+d._id+'/delete') 삭제
+
+                                            h2 #{d.title}
+
+                                            p #{d.contents.contents}
+
+                                            ul 
+                                                if d.heart !== undefined
+                                                    form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/recomments/'+d._id+'/reCommentHearts' method='POST')
+                                                        button(type='submit' formmethod='POST') 좋아요! #{Object.keys(d.heart).length}
+                                                else
+                                                    form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/comments/'+c._id+'/recomments/'+d._id+'/reCommentHearts' method='POST')
+                                                        button(type='submit' formmethod='POST') 좋아요! 0
+                                        else 
+                                            p 대댓글이 삭제되었습니다.
 
         form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/write' method="POST")
             p

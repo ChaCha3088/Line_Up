@@ -1,10 +1,6 @@
 - env = process.env;
 
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/boardMenuBar.pug
 
 body
     a(href=env.URL+'/stores/'+storeID+'/songRequests/write') 신청곡 작성하기
@@ -14,7 +10,7 @@ body
             article
                 a(href=env.URL+'/stores/'+storeID+'/songRequests/posts/'+i._id)
                     h3 #{i.email}
-                    - createdTime = new Date(i.createdAt).toLocaleString();
+                    - createdTime = new Date(i.title.createdAt).toLocaleString();
                     time 작성: #{createdTime}
                     h2 #{i.title}
                     ul  

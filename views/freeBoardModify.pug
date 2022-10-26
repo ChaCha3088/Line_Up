@@ -1,10 +1,6 @@
 - env = process.env;
 
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/boardMenuBar.pug
 
 body
     form(action=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+postID+'/modify' method="POST")

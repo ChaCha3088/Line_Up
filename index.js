@@ -60,7 +60,7 @@ app.get('/', async (req, res) => {
     } else {
         const context = {
             pageTitle: '메인',
-            loginResult: loginResult
+            loginResult: loginResult,
         };
         res.render('main', context);
     }

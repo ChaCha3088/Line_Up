@@ -10,10 +10,11 @@ body
         h1 주문한 메뉴
         if result !== null
             each i in result.orders
-                p #{i.name}: #{i.price} X #{i.count}
-                if admin === true
-                    a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/menus/${i.name}/modifyPage`) 수정
-                    a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/menus/${i.name}/delete`) 삭제
+                ul
+                    p #{i.name}: #{i.price} X #{i.count}
+                    if admin === true
+                        a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/menus/${i.name}/modifyPage`) 수정
+                        a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/menus/${i.name}/delete`) 삭제
 
             //합계 금액
             //result.orderSum
@@ -22,6 +23,6 @@ body
             //주문 총 갯수
             //result.orderCounts
             p 수량 #{allCount}개
-
+            
         if admin === true
             a(href=env.URL+`/stores/${storeID}/tables/${tableNumber}/clear`) 정산하기

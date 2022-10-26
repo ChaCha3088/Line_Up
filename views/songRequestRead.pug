@@ -1,10 +1,6 @@
 - env = process.env;
 
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/boardMenuBar.pug
 
 body
     div
@@ -12,18 +8,19 @@ body
             div
                 h3 #{result.email}
 
-                - createdPostTime = new Date(result.createdAt).toLocaleString();
-                if result.createdAt == result.updatedAt
+                - createdPostTime = new Date(result.title.createdAt).toLocaleString().slice(-18);
+                if result.title.createdAt == result.title.updatedAt
                     time 작성: #{createdPostTime}
                 else
-                    - updatedPostTime = new Date(result.updatedAt).toLocaleString();
+                    - updatedPostTime = new Date(result.title.updatedAt).toLocaleString().slice(-18);
                     time 작성: #{createdPostTime} 수정: #{updatedPostTime}
 
                 if result.email == req.user.email || req.user.admin === true
                     a(href=env.URL+'/stores/'+storeID+'/songRequests/posts/'+postID+'/modifyPage') 수정
                     a(href=env.URL+'/stores/'+storeID+'/songRequests/posts/'+postID+'/delete') 삭제
 
-                h2 #{result.title}
+                h2 아티스트: #{result.artist}
+                h2 제목: #{result.title.title}
                 ul 
                     if result.heart !== undefined
                         form(action=env.URL+'/stores/'+storeID+'/songRequests/posts/'+postID+'/hearts' method='POST')

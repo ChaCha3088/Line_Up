@@ -1,16 +1,12 @@
 - env = process.env;
 
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/boardMenuBar.pug
 
 body
     form(action=env.URL+'/stores/'+storeID+'/songRequests/posts/'+postID+'/modify' method="POST")
         p
             input(placeholder="아티스트", name="artist", value=result.artist, type="text", required)
         p
-            input(placeholder="제목", name="title", value=result.title, type="text", required)
+            input(placeholder="제목", name="title", value=result.title.title, type="text", required)
         p
             input(type="submit", value="수정")
