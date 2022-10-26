@@ -24,7 +24,6 @@ const order = new Schema({
     },
     leaderEmail: {
         type: String,
-        required: true
     },
     tableNumber: {
         type: Number,

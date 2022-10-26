@@ -617,9 +617,9 @@ module.exports = {
                     {
                         'storeID': storeID,
                         'tableNumber': i,
+                        'didPay': false,
                     }
                 ).exec();
-
                 if (result == null) {
                     throw new Error('Finding Table Failed!')
                 }
@@ -635,7 +635,7 @@ module.exports = {
             return resultArray
         } catch (e) {
             console.log(e)
-            return false;
+            return resultArray;
         }
     },
     getTableInfo: async function(storeID, tableNumber) {
@@ -644,6 +644,7 @@ module.exports = {
                 {
                     'storeID': storeID,
                     'tableNumber': tableNumber,
+                    'didPay': false
                 }
             ).exec();
             if (result == null) {
@@ -697,6 +698,50 @@ module.exports = {
             return false;
         }
     },
+    deleteTable: async function(storeID, tableNumber, req) {
+        try {
+            let result = await order.findOneAndUpdate(
+                {
+                    'storeID': storeID,
+                    'tableNumber': tableNumber,
+                    'didPay': false
+                },
+                {
+                    'didPay': true
+                }).exec();
+            if (result == null) {
+                throw new Error('Deleting New Table Failed!')
+            }
+            let deleteTableListOnStoreInfoResult = await storeInfo.findOneAndUpdate(
+                {
+                    'storeID': storeID,
+                },
+                {
+                    $pull: {
+                        'tableLists': mongoose.Types.ObjectId(result._id)
+                    }
+                });
+            if (deleteTableListOnStoreInfoResult == null) {
+                throw new Error('Updating Table List On StoreInfo Failed!')
+            }
+            if (!req.user.hasOwnProperty('admin')) {
+                let updateTableNumberOnUserSchema = await User.findOneAndUpdate(
+                    {
+                        'email': req.user.email
+                    },
+                    {
+                        'tableNumber': undefined
+                    });
+                if (updateTableNumberOnUserSchema == null) {
+                    throw new Error('Updating Table Number On UserSchema Failed!')
+                }
+                }
+            return true;
+        } catch (e) {
+            console.log(e)
+            return false;
+        }
+    },
     postNewDish: async function(storeID, tableNumber, menuName, req) {
         try {
             var result = await infoModel.getStoreMenus(storeID);
@@ -726,6 +771,7 @@ module.exports = {
                     {
                         'storeID': storeID,
                         'tableNumber': tableNumber,
+                        'didPay': false,
                         'orders': { $elemMatch: {
                             'name': menuName
                         }}
@@ -741,6 +787,7 @@ module.exports = {
                     {
                         'storeID': storeID,
                         'tableNumber': tableNumber,
+                        'didPay': false,
                     },
                     {
                         $push: {
@@ -766,6 +813,7 @@ module.exports = {
                 {
                     'storeID': storeID,
                     'tableNumber': tableNumber,
+                    'didPay': false,
                     'orders': { $elemMatch: {
                         'name': menuName
                     }}
@@ -784,20 +832,18 @@ module.exports = {
             return false;
         }
     },
-    deleteDish: async function(storeID, tableNumber, menuName, req) {
+    deleteDish: async function(storeID, tableNumber, menuName) {
         try {
-            let result = order.findOneAndUpdate(
+            let result = await order.findOneAndUpdate(
                 {
                     'storeID': storeID,
                     'tableNumber': tableNumber,
-                    'orders': { $elemMatch: {
-                        'name': menuName
-                    }}
+                    'didPay': false
                 },
                 {
                     $pull: {
                         'orders': {
-                            'name': menuName
+                            'name': `${menuName}`
                         }
                     }
                 });
@@ -812,20 +858,22 @@ module.exports = {
     },
     menuValidationMiddleware: async function(req, res, next) {
         var result = await infoModel.getStoreMenus(req.params.storeID);
-            if (!result.result.hasOwnProperty(`${req.params.menuName}`)) {
-                res.redirect(`/stores/${req.params.storeID}/tables/${req.params.tableNumber}`)
-                throw new Error('menuName is not valid')
-            } else {
-                next();
-                return;
-            }
+        console.log(result.result)
+        if (!result.result.hasOwnProperty(`${req.params.menuName}`)) {
+            res.redirect(`/stores/${req.params.storeID}/tables/${req.params.tableNumber}`)
+            throw new Error('menuName is not valid')
+        } else {
+            next();
+            return;
+        }
     },
     takenTableMiddleware: async function(req, res, next) {
         try {
             var result = await order.findOne(
                 {
                     'storeID': req.params.storeID,
-                    'tableNumber': req.params.tableNumber
+                    'tableNumber': req.params.tableNumber,
+                    'didPay': false
                 }
             ).exec();
             if (result == null) {

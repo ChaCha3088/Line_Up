@@ -514,6 +514,20 @@ router.post("/:storeID/tableSelect/:tableNumber", storeModel.validStoreName, use
     }
 });
 //테이블 정산 or 전체 삭제 post 요청 //admin만 가능한 Middleware // 생성시 storeInfo.tableLists와 order.didPay: true와 userSchema.tableNumber가 입력되었으니 삭제 //didPay: true로
+router.get("/:storeID/tables/:tableNumber/clear", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, async (req, res, next) => {
+    try {
+        var storeID = String(req.params.storeID);
+        var tableNumber = String(req.params.tableNumber);
+        let result = await storeModel.deleteTable(storeID, tableNumber, req);
+        if (result == false) {
+            throw new Error('Deleting Table Failed!')
+        }
+        res.redirect(`/stores/${storeID}/admin/tableStatus`)
+    } catch (e) {
+        console.log(e)
+        res.redirect(`/stores/${storeID}/admin/tableStatus`)
+    }
+});
 
 //테이블 현재 주문 상태 페이지
 router.get("/:storeID/tables/:tableNumber", storeModel.validStoreName, userModel.logInCheckMiddleware, storeModel.tableLeaderMiddleware, async (req, res, next) => {
@@ -553,13 +567,14 @@ router.get("/:storeID/tables/:tableNumber", storeModel.validStoreName, userModel
             res.render('tableCurrentOrder', context);
             return;
         } else {
-            res.redirect(`/stores/${storeID}/tableSelect`)
+            res.redirect(`/stores/${storeID}/admin/tableStatus`)
         }
     } catch (e) {
         console.log(e)
-        res.redirect(`/stores/${storeID}/tableSelect`)
+        res.redirect(`/stores/${storeID}/admin/tableStatus`)
     }
 });
+
 //테이블 메뉴판
 router.get("/:storeID/tables/:tableNumber/menus", storeModel.validStoreName, userModel.logInCheckMiddleware, storeModel.tableLeaderMiddleware, async (req, res, next) => {
     var storeID = String(req.params.storeID);
@@ -610,7 +625,7 @@ router.get("/:storeID/tables/:tableNumber/menus/:menuName/modifyPage", storeMode
         var storeID = String(req.params.storeID);
         var tableNumber = String(req.params.tableNumber);
         var menuName = String(req.params.menuName);
-        let result = storeModel.getTableInfo(storeID, tableNumber)
+        let result = await storeModel.getTableInfo(storeID, tableNumber)
         if (result == false) {
             throw new Error('Getting Order Info Failed!')
         }
@@ -633,7 +648,10 @@ router.get("/:storeID/tables/:tableNumber/menus/:menuName/modifyPage", storeMode
 //테이블 어드민 메뉴 수정 post 요청
 router.post("/:storeID/tables/:tableNumber/menus/:menuName/modify", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, storeModel.menuValidationMiddleware, async (req, res, next) => {
     try {
-        let result = storeModel.updateDish(storeID, tableNumber, menuName, req)
+        var storeID = String(req.params.storeID);
+        var tableNumber = String(req.params.tableNumber);
+        var menuName = String(req.params.menuName);
+        let result = await storeModel.updateDish(storeID, tableNumber, menuName, req)
         if (result == false) {
             throw new Error('Updating Dish Failed!')
         }
@@ -647,7 +665,10 @@ router.post("/:storeID/tables/:tableNumber/menus/:menuName/modify", storeModel.v
 //테이블 어드민 메뉴 삭제 post 요청
 router.get("/:storeID/tables/:tableNumber/menus/:menuName/delete", storeModel.validStoreName, userModel.logInCheckMiddleware, userModel.isAdminMiddleware, storeModel.menuValidationMiddleware, async (req, res, next) => {
     try {
-        let result = storeModel.deleteDish(storeID, tableNumber, menuName, req)
+        var storeID = String(req.params.storeID);
+        var tableNumber = String(req.params.tableNumber);
+        var menuName = String(req.params.menuName);
+        let result = await storeModel.deleteDish(storeID, tableNumber, menuName)
         if (result == false) {
             throw new Error('Deleting Dish Failed!')
         }
@@ -665,9 +686,6 @@ router.get("/:storeID/admin/tableStatus", storeModel.validStoreName, userModel.l
     try {
         var storeID = String(req.params.storeID);
         let result = await storeModel.getTableStatus(storeID);
-        if (result == false) {
-            throw new Error('Getting Table Status Failed!')
-        }
         let context = {
             storeID: storeID,
             result: result

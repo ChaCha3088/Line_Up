@@ -69,6 +69,7 @@ app.get('/', async (req, res) => {
 
 app.use((req, res, next) => {
     res.status(404);
+    console.log('err')
     res.redirect('/')
 });
 

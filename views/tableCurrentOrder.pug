@@ -1,5 +1,7 @@
 - env = process.env;
 
+
+
 doctype html 
 html(lang='ko')
 
@@ -16,8 +18,8 @@ body
             each i in result.orders
                 p #{i.name}: #{i.price} X #{i.count}
                 if admin === true
-                    a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/modify`) 수정
-                    a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/delete`) 삭제
+                    a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/menus/${i.name}/modifyPage`) 수정
+                    a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/menus/${i.name}/delete`) 삭제
 
             //합계 금액
             //result.orderSum
@@ -26,3 +28,6 @@ body
             //주문 총 갯수
             //result.orderCounts
             p 수량 #{allCount}개
+
+        if admin === true
+            a(href=env.URL+`/stores/${storeID}/tables/${tableNumber}/clear`) 정산하기

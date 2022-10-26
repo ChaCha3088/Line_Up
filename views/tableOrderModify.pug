@@ -7,7 +7,7 @@ head
     title #{pageTitle}
 
 body
-    form(action=`/${storeID}/tables/${tableNumber}/menus/${menuName}/modify` method="POST")
+    form(action=`/stores/${storeID}/tables/${tableNumber}/menus/${menuName}/modify` method="POST")
         p
             input(placeholder="수량", name="count", value=foundTableOrderCount, type="number", required)
         p
