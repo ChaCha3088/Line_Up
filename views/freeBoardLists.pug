@@ -10,10 +10,10 @@ body
             article
                 a(href=env.URL+'/stores/'+storeID+'/freeBoards/posts/'+i._id)
                     div
-                        p 작성자: #{i.email.slice(0, 3)}
+                        div #{i.email.slice(0, 3)}
                         - createdTime = new Date(i.contents.createdAt).toLocaleString();
                         time 작성: #{createdTime.slice(-18)}
-                    h3 #{i.title.slice(0, 10)}
+                    h4 #{i.title.slice(0, 10)}
                     ul  
                         if i.heart !== undefined
                             li 좋아요: #{Object.keys(i.heart).length}

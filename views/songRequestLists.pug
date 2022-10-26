@@ -9,10 +9,11 @@ body
         each i in songRequestListResult
             article
                 a(href=env.URL+'/stores/'+storeID+'/songRequests/posts/'+i._id)
-                    h3 #{i.email}
-                    - createdTime = new Date(i.title.createdAt).toLocaleString();
+                    div #{i.email.slice(0, 3)}
+                    - createdTime = new Date(i.title.createdAt).toLocaleString().slice(-18);
                     time 작성: #{createdTime}
-                    h2 #{i.title}
+                    div 아티스트: #{i.artist.slice(0, 10)}
+                    div 제목: #{i.title.title.slice(0, 10)}
                     ul  
                         if i.heart !== undefined
                             li 좋아요: #{Object.keys(i.heart).length}
