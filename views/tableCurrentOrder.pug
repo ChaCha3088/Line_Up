@@ -1,16 +1,10 @@
 - env = process.env;
 
-
-
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/adminMenuBar.pug
 
 body
     div
-        a(href=env.URL+`/stores/${storeID}/tables/${tableNumber}/menus`) 메뉴판 보기
+        a(href=`${env.URL}/stores/${storeID}/tables/${tableNumber}/menus`) 메뉴판 보기
         //반복문
         //result.orders에 있는거 반복문으로 꺼내기
         h1 주문한 메뉴

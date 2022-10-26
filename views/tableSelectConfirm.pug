@@ -1,14 +1,10 @@
 - env = process.env;
 
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/adminMenuBar.pug
 
 body
     form(action=env.URL+'/stores/'+storeID+'/tableSelect/'+tableNumber method="POST")
         p
-            p #{tableNumber}
+            p(style = "font-size : 35px;") #{tableNumber}
             button(type='submit' formmethod='POST') 테이블에 있는 숫자가 일치하면 버튼을 눌러주세요!
             a(href=env.URL+'/stores/'+storeID+'/tableSelect/') 테이블을 잘못 선택했다면 여기를 눌러주세요!

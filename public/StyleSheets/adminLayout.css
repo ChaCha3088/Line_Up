@@ -12,8 +12,12 @@ header {
     width: 90%
 }
 a {
+    border-radius: 15%;
+    border: 2px solid black;
     text-decoration: none;
     color: black;
+    display: flex;
+    font-size : 25px;
 }
 body {
     padding-top: 120px;
@@ -21,4 +25,15 @@ body {
 li {
     float: left;
     justify-content: space-around;
+}
+input {
+    font-size : 25px;
+    float: right;
+}
+button {
+    font-size : 25px;
+}
+p {
+    display: flex;
+    flex-direction: column;
 }

@@ -1,11 +1,8 @@
 - env = process.env;
 
-doctype html 
-html(lang='ko')
-
-head 
-    title #{pageTitle}
+include Layout/adminMenuBar.pug
 
 body
     each i in result.availableTables
-        a(href=env.URL+`/stores/${storeID}/tableSelect/${i}`) #{i}
+        h2 
+            a(href=env.URL+`/stores/${storeID}/tableSelect/${i}`) #{i}

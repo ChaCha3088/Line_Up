@@ -3,13 +3,12 @@
 include Layout/adminMenuBar.pug
 
 body
-    a(href=`${env.URL}/stores/${storeID}/tableSelect`) 테이블 추가
     if result !== undefined
         each i in result
             article
                 a(href=`${env.URL}/stores/${storeID}/tables/${i.tableNumber}`)
+                    - createdTime = new Date(i.createdAt).toLocaleString();
                     p 테이블 번호: #{i.tableNumber}
-                    p 합계: #{i.sum}
-                    p 테이블 시작 시간: #{i.createdAt}
-
+                    p 합계: #{i.sum}원
+                    p 테이블 시작 시간: #{createdTime}
 
