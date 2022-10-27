@@ -3,6 +3,7 @@ module.exports = {
   name: 'orderME',
   script: './index.js',
   instances: 0,
-  exec_mode: 'cluster'
+  exec_mode: 'cluster',
+  watch: true
   }]
 }
