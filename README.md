@@ -31,9 +31,9 @@
  
 ### Usage
  
-![1](https://user-images.githubusercontent.com/90785316/218384551-a1e6ed7c-178b-4589-81d1-c99d6fa8141b.png)
-![2](https://user-images.githubusercontent.com/90785316/218384566-41cf5f5a-a5a6-443c-9e9b-5c667eda0606.png)
-![3](https://user-images.githubusercontent.com/90785316/218384582-479c5c0c-0af1-4f90-8676-2d4b8a916ff1.png)
-![4](https://user-images.githubusercontent.com/90785316/218384594-814efb9c-2980-4cbc-b6a8-b9c0fd2d2c69.png)
-![5](https://user-images.githubusercontent.com/90785316/218384601-52524fb2-4720-45d9-941b-9484f76d0e0c.png)
-![6](https://user-images.githubusercontent.com/90785316/218384611-5c81beec-9035-43d5-925a-91e0952c3b41.png)
+![1](https://user-images.githubusercontent.com/90785316/218384551-a1e6ed7c-178b-4589-81d1-c99d6fa8141b.png){: width="50%" height="50%"}
+![2](https://user-images.githubusercontent.com/90785316/218384566-41cf5f5a-a5a6-443c-9e9b-5c667eda0606.png){: width="50%" height="50%"}
+![3](https://user-images.githubusercontent.com/90785316/218384582-479c5c0c-0af1-4f90-8676-2d4b8a916ff1.png){: width="50%" height="50%"}
+![4](https://user-images.githubusercontent.com/90785316/218384594-814efb9c-2980-4cbc-b6a8-b9c0fd2d2c69.png){: width="50%" height="50%"}
+![5](https://user-images.githubusercontent.com/90785316/218384601-52524fb2-4720-45d9-941b-9484f76d0e0c.png){: width="50%" height="50%"}
+![6](https://user-images.githubusercontent.com/90785316/218384611-5c81beec-9035-43d5-925a-91e0952c3b41.png){: width="50%" height="50%"}
